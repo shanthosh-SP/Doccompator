@@ -1,38 +1,46 @@
 # docx_api.py
 
+from docx import Document
 from docx2pdf import convert
+from weasyprint import HTML
+from tika import parser
+from inscriptis import get_text
 import os
 import logging
 import subprocess
-from tika import parser
-from inscriptis import get_text
 import nltk
 import re
 import torch
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
+from reportlab.pdfgen import canvas
 
-def extract_text_from_docx(input_docs_file,input_html_file):
+def convert_docx_to_pdf(docx_path, pdf_path):
+    try:
+        # Use docx2pdf library for conversion
+        convert(docx_path, pdf_path)
+        print(f"Conversion successful: {docx_path} -> {pdf_path}")
+    except Exception as e:
+        print(f"Conversion failed: {e}")
 
-        # Process HTML
-    if not os.path.exists(input_html_file):
-        print(f'The file {input_html_file} does not exist.')
-        exit()
+def extract_text_from_docx(input_docs_file, input_html_file):
+    pdf_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'docto_pdf.pdf')
 
+    try:
+        print("Converting DOCX to PDF...")
+        convert_docx_to_pdf(input_docs_file, pdf_path)
+        print(f"Conversion successful. PDF saved to {pdf_path}")
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+
+    # Assuming you have a function get_text() to extract text from HTML
     with open(input_html_file, 'r', encoding="ISO-8859-1") as file:
         html_content = file.read()
 
-    # Assuming you have a function get_text() to extract text from HTML
     text_content = get_text(html_content)
-    pdf_path = 'Temp.pdf'
-    try:
-        convert(input_docs_file, pdf_path)
-        print(f"Conversion successful. PDF saved to {pdf_path}")
-    except Exception as e:
-        print(f"Error: {e}")
 
     # Extract text from PDF with layout preservation
-    input_pdf_file = 'Temp.pdf'
+    input_pdf_file = 'docto_pdf.pdf'
     output_text_file = 'tempext.txt'
 
     # Use pdftotext with layout preservation
@@ -57,9 +65,9 @@ def extract_text_from_docx(input_docs_file,input_html_file):
     # Create a list to store the page numbers along with their corresponding text
     pages_with_numbers = []
 
-    for num_pages, page_text in enumerate(pages, 1):
+    for page_number, page_text in enumerate(pages, 1):
         if page_text.strip():  # Check if the page is not empty or mostly empty
-            pages_with_numbers.append(f"Page {num_pages}\n{page_text}")
+            pages_with_numbers.append(f"Page {page_number}\n{page_text}")
 
     # Combine all pages
     combined_text = '\n'.join(pages_with_numbers)
@@ -74,7 +82,9 @@ def extract_text_from_docx(input_docs_file,input_html_file):
     # Now you have a single text file containing page numbers along with their corresponding text content and layout
     print(f"Combined text with page numbers and layout preserved saved to {output_temptext_file}")
 
-    return combined_text,text_content
+    return combined_text, text_content
+# Rest of your code remains unchanged
+
 
 def compare_docx_with_html(docx_text, html_text):
     # Tokenize the text

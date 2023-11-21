@@ -82,73 +82,89 @@ def extract_text_from_excel(input_excel_file, input_html_file):
 
     return {'excel_extraction_tabulated': table, 'excel_extraction_plain': excel_text, 'html': text_content}
 
-def compare_excel_with_html(excel_text,html_text):
-    # nltk.download('punkt')
-    excel_words = set(nltk.word_tokenize(excel_text))
-    html_words = set(nltk.word_tokenize(html_text))
+def compare_excel_with_html(excel_text, html_text):
+    try:
+        excel_words = set(nltk.word_tokenize(excel_text))
+        html_words = set(nltk.word_tokenize(html_text))
 
-    #################FINDING DIFFERENCE##########################
-    difference_words = excel_words - html_words 
+        # Finding the difference
+        difference_words = excel_words - html_words
 
-    ###################FINDING THE LINE,POSITION,PAGE##############
-    word_positions = {}
-    excel_lines = excel_text.splitlines()
+        # Finding the line, position, page
+        word_positions = {}
+        excel_lines= excel_text.splitlines()
 
-    sheet_number = 0
-    line_number = 0
+        page_number = 0
+        line_number = 0
 
-    for line in excel_lines:
-        if line.startswith("sheet name"):
-            print(line)
-            match = re.match(r'sheet name: sheet(\d+)', line)
-            print("is there a match",match)
-            if match:
-                print("is checkcking there a match",match)
-                sheet_number = int(match.group(1))
-                print(sheet_number)
-            line_number = 0
-        else:
-            line_number += 1
+        for line in excel_lines:
+            if line.startswith("sheet name"):
+                match = re.match(r'sheet name: sheet(\d+)', line)
+                if match:
+                    page_number = int(match.group(1))
+                line_number = 0
+            else:
+                line_number += 1
 
-        line_words = list(re.findall(r'\b\w+\b', line))
-        for word in line_words:
-            if word in difference_words:
-                if word not in word_positions:
-                    word_positions[word] = []
-                word_positions[word].append({
-                    'Sheet': sheet_number,
-                    'Line': line_number,
-                    'Position': line_words.index(word),
-                    'LineContent': line 
-                })
+            line_words = list(re.findall(r'\b\w+\b', line))
+            for word in line_words:
+                if word in difference_words:
+                    if word not in word_positions:
+                        word_positions[word] = []
+                    word_positions[word].append({
+                        'Page': page_number,
+                        'Line': line_number,
+                        'Position': line_words.index(word),
+                        'LineContent': line
+                    })
 
-    output = f'Position-Line-Page.txt'
-    with open(output, 'w', encoding='utf-8') as result_file:
-        for word, positions in word_positions.items():
-            for data in positions:
-                result_file.write(f"Word: {word}\n")
-                result_file.write(f"Sheet: {data['Sheet']}\n")
-                result_file.write(f"Line: {data['Line']}\n")
-                result_file.write(f"Position: {data['Position']}\n")
-                result_file.write(f"Line Content: {data['LineContent']}\n\n")
+        output = f"excel_htmlcompare.txt"
+        with open(output, 'w', encoding='utf-8') as result_file:
+            for word, positions in word_positions.items():
+                for data in positions:
+                    result_file.write(f"Word: {word}\n")
+                    result_file.write(f"Page: {data['Page']}\n")
+                    result_file.write(f"Line: {data['Line']}\n")
+                    result_file.write(f"Position: {data['Position']}\n")
+                    result_file.write(f"Line Content: {data['LineContent']}\n\n")
 
-    model_name = "bert-base-uncased"
-    tokenizer = BertTokenizer.from_pretrained(model_name)
-    model = BertModel.from_pretrained(model_name)
-    # Tokenize and encode the text
-    tokens1 = tokenizer(excel_text, return_tensors='pt', padding=True, truncation=True)
-    tokens2 = tokenizer(html_text, return_tensors='pt', padding=True, truncation=True)
-    # Get embeddings from the model
-    with torch.no_grad():
-        embeddings1 = model(**tokens1).last_hidden_state.mean(dim=1)  # You can choose a different aggregation strategy (e.g., mean, max, etc.)
-        embeddings2 = model(**tokens2).last_hidden_state.mean(dim=1)
+        # Comparison using Jaccard Similarity
+        jaccard_similarity = len(excel_words.intersection(html_words)) / len(excel_words.union(html_words))
+        percentage_difference = (1 - jaccard_similarity) * 100
 
-    # Calculate the cosine similarity
-    similarity = cosine_similarity(embeddings1, embeddings2)
-    # The value of similarity ranges from -1 to 1, with higher values indicating greater similarity.
-    print("Cosine Similarity:", similarity[0][0])
+        # Comparison using BERT Cosine Similarity
+        model_name = "bert-base-uncased"
+        tokenizer = BertTokenizer.from_pretrained(model_name)
+        model = BertModel.from_pretrained(model_name)
 
-    return {'word_positions': word_positions, 'bert_similarity': similarity[0][0].item()}
+        tokens1 = tokenizer(excel_text, return_tensors='pt', padding=True, truncation=True)
+        tokens2 = tokenizer(html_text, return_tensors='pt', padding=True, truncation=True)
+
+        with torch.no_grad():
+            embeddings1 = model(**tokens1).last_hidden_state.mean(dim=1)
+            embeddings2 = model(**tokens2).last_hidden_state.mean(dim=1)
+
+        similarity = cosine_similarity(embeddings1, embeddings2)
+        bert_cosine_similarity = similarity[0][0].item()  # Convert float32 to a standard Python float
+
+        # Include extracted PDF and HTML texts and comparison output in the response
+        with open(output, 'r', encoding='utf-8') as result_file:
+            output_content = result_file.read()
+
+        response_data = {
+            "bert_cosine_similarity": float(similarity[0][0]),
+            "Excel_text": excel_text,
+            "html_text": html_text,
+            "comparison_output": {
+                "file_path": output,
+                "content": output_content
+            }
+        }
+
+        return response_data
+    
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def process_files_and_return_results(excel_file_path, html_file_path):
@@ -158,15 +174,5 @@ def process_files_and_return_results(excel_file_path, html_file_path):
     # Compare Excel with HTML
     compare_results = compare_excel_with_html(excel_extraction_results['excel_extraction_plain'],excel_extraction_results['html'])
 
-    # Return the results
-    response_data = {
-            "bert_cosine_similarity": compare_results['bert_similarity'],
-            "Excel_text": excel_extraction_results['excel_extraction_plain'],
-            "html_text": excel_extraction_results['html'],
-            "comparison_output": {
-                "content": compare_results['word_positions']
-            }
-        }
-
-    return response_data
+    return compare_results
 

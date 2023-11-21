@@ -1,20 +1,15 @@
 import os
 import logging
-import subprocess
-from tika import parser
 import nltk
 import re
 import torch
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
 from pptx import Presentation
-import openpyxl
 from pptx.enum.shapes import MSO_SHAPE_TYPE
-import pandas as pd
 import pytesseract
 from PIL import Image
-import textwrap
-from tabulate import tabulate
+from inscriptis import get_text
 
 def extract_text_from_ppt(pptx_file, input_html_file):
     # Process HTML
@@ -24,6 +19,7 @@ def extract_text_from_ppt(pptx_file, input_html_file):
 
     with open(input_html_file, 'r', encoding="ISO-8859-1") as file:
         html_content = file.read()
+    text_content= get_text(html_content)
 
     def extract_table(table):
         # Function to extract text from a PowerPoint table
@@ -77,77 +73,92 @@ def extract_text_from_ppt(pptx_file, input_html_file):
         text_file.write(extracted_text)
 
         
-    return extracted_text,html_content
+    return extracted_text,text_content
 
-def compare_ppt_with_html(ppt_text, html_text, input_pptx_file):
-    # Tokenize the text
-    ppt_words = set(nltk.word_tokenize(ppt_text))
-    html_words = set(nltk.word_tokenize(html_text))
+def compare_ppt_with_html(ppt_text, html_text):
+    try:
+        ppt_words = set(nltk.word_tokenize(ppt_text))
+        html_words = set(nltk.word_tokenize(html_text))
 
-    # Finding the difference
-    difference_words = ppt_words - html_words
+        # Finding the difference
+        difference_words = ppt_words - html_words
 
-    # Finding the slide, line, position
-    word_positions = {}
-    ppt_lines = ppt_text.splitlines()
+        # Finding the line, position, page
+        word_positions = {}
+        ppt_lines = ppt_text.splitlines()
 
-    slide_number = 0
-    line_number = 0
+        page_number = 0
+        line_number = 0
 
-    for line in ppt_lines:
-        if line.startswith("Slide"):
-            match = re.match(r'Slide (\d+):', line)
-            if match:
-                slide_number = int(match.group(1))
-            line_number = 0
-        else:
-            line_number += 1
+        for line in ppt_lines:
+            if line.startswith("Slide"):
+                match = re.match(r'Slide (\d+)', line)
+                if match:
+                    page_number = int(match.group(1))
+                line_number = 0
+            else:
+                line_number += 1
 
-        line_words = list(re.findall(r'\b\w+\b', line))
-        for word in line_words:
-            if word in difference_words:
-                if word not in word_positions:
-                    word_positions[word] = []
-                word_positions[word].append({
-                    'Slide': slide_number,
-                    'Line': line_number,
-                    'Position': line_words.index(word),
-                    'LineContent': line
-                })
+            line_words = list(re.findall(r'\b\w+\b', line))
+            for word in line_words:
+                if word in difference_words:
+                    if word not in word_positions:
+                        word_positions[word] = []
+                    word_positions[word].append({
+                        'Page': page_number,
+                        'Line': line_number,
+                        'Position': line_words.index(word),
+                        'LineContent': line
+                    })
 
-    output = f'{input_pptx_file}_ppt_htmlcompare.txt'
-    with open(output, 'w', encoding='utf-8') as result_file:
-        for word, positions in word_positions.items():
-            for data in positions:
-                result_file.write(f"Word: {word}\n")
-                result_file.write(f"Slide: {data['Slide']}\n")
-                result_file.write(f"Line: {data['Line']}\n")
-                result_file.write(f"Position: {data['Position']}\n")
-                result_file.write(f"Line Content: {data['LineContent']}\n\n")
+        output = f"ppt_htmlcompare.txt"
+        with open(output, 'w', encoding='utf-8') as result_file:
+            for word, positions in word_positions.items():
+                for data in positions:
+                    result_file.write(f"Word: {word}\n")
+                    result_file.write(f"Page: {data['Page']}\n")
+                    result_file.write(f"Line: {data['Line']}\n")
+                    result_file.write(f"Position: {data['Position']}\n")
+                    result_file.write(f"Line Content: {data['LineContent']}\n\n")
 
-    logging.info(f"Words in PPT but not in HTML, along with positions, saved to {output}")
+        logging.info(f"Words in PDF but not in HTML, along with positions, saved to {output}")
 
-    # Comparison using BERT Cosine Similarity
-    model_name = "bert-base-uncased"
-    tokenizer = BertTokenizer.from_pretrained(model_name)
-    model = BertModel.from_pretrained(model_name)
+        # Comparison using Jaccard Similarity
+        jaccard_similarity = len(ppt_words.intersection(html_words)) / len(ppt_words.union(html_words))
+        percentage_difference = (1 - jaccard_similarity) * 100
+        logging.info(f"Jaccard Similarity Score: {jaccard_similarity:.2f}")
 
-    tokens1 = tokenizer(ppt_text, return_tensors='pt', padding=True, truncation=True)
-    tokens2 = tokenizer(html_text, return_tensors='pt', padding=True, truncation=True)
+        # Comparison using BERT Cosine Similarity
+        model_name = "bert-base-uncased"
+        tokenizer = BertTokenizer.from_pretrained(model_name)
+        model = BertModel.from_pretrained(model_name)
 
-    with torch.no_grad():
-        embeddings1 = model(**tokens1).last_hidden_state.mean(dim=1)
-        embeddings2 = model(**tokens2).last_hidden_state.mean(dim=1)
+        tokens1 = tokenizer(ppt_text, return_tensors='pt', padding=True, truncation=True)
+        tokens2 = tokenizer(html_text, return_tensors='pt', padding=True, truncation=True)
 
-    similarity = cosine_similarity(embeddings1, embeddings2)
-    logging.info(f"Bert Cosine Similarity: {similarity[0][0]:.2f}")
+        with torch.no_grad():
+            embeddings1 = model(**tokens1).last_hidden_state.mean(dim=1)
+            embeddings2 = model(**tokens2).last_hidden_state.mean(dim=1)
 
-    return {
-        "bert_cosine_similarity": float(similarity[0][0]),
-        "ppt_text": ppt_text,
-        "html_text": html_text,
-        "comparison_output": {
-            "file_path": output,
-            "content": word_positions  # You can include the content if needed
+        similarity = cosine_similarity(embeddings1, embeddings2)
+        bert_cosine_similarity = similarity[0][0].item()  # Convert float32 to a standard Python float
+        logging.info(f"Bert Cosine Similarity: {bert_cosine_similarity:.2f}")
+
+        # Include extracted PDF and HTML texts and comparison output in the response
+        with open(output, 'r', encoding='utf-8') as result_file:
+            output_content = result_file.read()
+
+        response_data = {
+            "bert_cosine_similarity": float(similarity[0][0]),
+            "ppt_text": ppt_text,
+            "html_text": html_text,
+            "comparison_output": {
+                "file_path": output,
+                "content": output_content
+            }
         }
-    }
+
+        return response_data
+    
+    except Exception as e:
+        return {"error": str(e)}

@@ -65,7 +65,7 @@ def process_and_compare_files():
             ppt_text,html_text = extract_text_from_ppt(pptx_file_path, html_file_path)
 
             # Compare PPTX with HTML
-            ppt_html_comparison_result = compare_ppt_with_html(ppt_text, html_text,pptx_file_path)
+            ppt_html_comparison_result = compare_ppt_with_html(ppt_text, html_text)
 
             return jsonify(ppt_html_comparison_result)
 

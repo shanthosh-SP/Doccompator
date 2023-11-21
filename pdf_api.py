@@ -28,9 +28,9 @@ def process_pdf_and_html(input_pdf_file, input_html_file):
     pages = extracted_text.split('\x0c')
     pages_with_numbers = []
 
-    for page_num, page_text in enumerate(pages, 1):
+    for num_pages, page_text in enumerate(pages, 1):
         if page_text.strip():
-            pages_with_numbers.append(f"Page {page_num}\n{page_text}")
+            pages_with_numbers.append(f"Page {num_pages}\n{page_text}")
 
     combined_text = '\n'.join(pages_with_numbers)
 
@@ -63,8 +63,8 @@ def compare_pdf_with_html(pdf_text, html_text):
         line_number = 0
 
         for line in pdf_lines:
-            if line.startswith("page"):
-                match = re.match(r'page (\d+)', line)
+            if line.startswith("Page"):
+                match = re.match(r'Page (\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
