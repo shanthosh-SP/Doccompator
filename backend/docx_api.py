@@ -9,11 +9,23 @@ import os
 import logging
 import subprocess
 import nltk
+from nltk import download
 import re
 import torch
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
-from reportlab.pdfgen import canvas
+#from reportlab.pdfgen import canvas
+#nltk.download('punkt') 
+
+# Set the data download path
+nltk.data.path.append("D:\comparison_tool\documentcomparisiontool")
+
+# Disable SSL verification
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Download 'punkt'
+download('punkt')
 
 def convert_docx_to_pdf(docx_path, pdf_path):
     try:
@@ -24,7 +36,7 @@ def convert_docx_to_pdf(docx_path, pdf_path):
         print(f"Conversion failed: {e}")
 
 def extract_text_from_docx(input_docs_file, input_html_file):
-    pdf_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'docto_pdf.pdf')
+    pdf_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Temp_pdf.pdf')
 
     try:
         print("Converting DOCX to PDF...")
@@ -40,7 +52,7 @@ def extract_text_from_docx(input_docs_file, input_html_file):
     text_content = get_text(html_content)
 
     # Extract text from PDF with layout preservation
-    input_pdf_file = 'docto_pdf.pdf'
+    input_pdf_file = 'Temp_pdf.pdf'
     output_text_file = 'tempext.txt'
 
     # Use pdftotext with layout preservation
@@ -83,6 +95,7 @@ def extract_text_from_docx(input_docs_file, input_html_file):
     print(f"Combined text with page numbers and layout preserved saved to {output_temptext_file}")
 
     return combined_text, text_content
+
 # Rest of your code remains unchanged
 
 

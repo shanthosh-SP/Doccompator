@@ -1,7 +1,7 @@
 # run.py
 import os
 from flask import Flask, request, jsonify
-from docx_api import extract_text_from_docx, compare_docx_with_html
+#from docx_api import extract_text_from_docx, compare_docx_with_html
 from pdf_api import process_pdf_and_html, compare_pdf_with_html
 from ppt_api import extract_text_from_ppt, compare_ppt_with_html  # Import new functions
 from excel_api import process_files_and_return_results 
@@ -33,7 +33,7 @@ def process_and_compare_files():
             return jsonify(pdf_html_comparison_result)
         elif file1_extension == '.xlsx' and html_extension == '.html':
             # Save the files to temporary locations
-            excel_file_path = 'temp_pdf.xlsx'
+            excel_file_path = 'temp_excel.xlsx'
             html_file_path = 'temp_html.html'
             file1.save(excel_file_path)
             html_file.save(html_file_path)
@@ -41,19 +41,19 @@ def process_and_compare_files():
             # Compare the texts using the function from pdf_api.py
             comparison_result = process_files_and_return_results(excel_file_path,html_file_path)
             return jsonify(comparison_result)
-        elif file1_extension == '.docx' and html_extension == '.html':
-            # Process DOCX and HTML files
-            docx_file_path = 'temp_docx.docx'
-            html_file_path = 'temp_html.html'
-            file1.save(docx_file_path)
-            html_file.save(html_file_path)
+        # elif file1_extension == '.docx' and html_extension == '.html':
+        #     # Process DOCX and HTML files
+        #     docx_file_path = 'temp_docx.docx'
+        #     html_file_path = 'temp_html.html'
+        #     file1.save(docx_file_path)
+        #     html_file.save(html_file_path)
 
-            docx_text, html_text = extract_text_from_docx(docx_file_path, html_file_path)
+        #     docx_text, html_text = extract_text_from_docx(docx_file_path, html_file_path)
 
-            # Compare DOCX with HTML
-            docx_html_comparison_result = compare_docx_with_html(docx_text, html_text)
+        #     # Compare DOCX with HTML
+        #     docx_html_comparison_result = compare_docx_with_html(docx_text, html_text)
 
-            return jsonify(docx_html_comparison_result)
+        #     return jsonify(docx_html_comparison_result)
 
         elif file1_extension == '.pptx' and html_extension == '.html':
             # Process PPTX and HTML files
@@ -76,4 +76,4 @@ def process_and_compare_files():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

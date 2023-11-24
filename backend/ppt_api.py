@@ -1,39 +1,17 @@
-# pdf_api.py
-import logging
-import subprocess
-from tika import parser
 import os
-from inscriptis import get_text
+import logging
 import nltk
 import re
 import torch
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
-from flask import jsonify  # Import jsonify for JSON response
-
-def extract_text_with_layout(file_path):
-    with open(file_path, 'r', encoding='utf-8') as text_file:
-        text = text_file.read()
-    return text
-
-def process_pdf_and_html(input_pdf_file, input_html_file):
-    # Process PDF
-    output_text_file = 'output.txt'
-    subprocess.run(['pdftotext', '-layout', input_pdf_file, output_text_file])
-
-    parsed_pdf = parser.from_file(input_pdf_file)
-    num_pages = int(parsed_pdf['metadata'].get('xmpTPg:NPages', 0))
-
-    extracted_text = extract_text_with_layout(output_text_file)
-    pages = extracted_text.split('\x0c')
-    pages_with_numbers = []
-
-    for num_pages, page_text in enumerate(pages, 1):
-        if page_text.strip():
-            pages_with_numbers.append(f"Page {num_pages}\n{page_text}")
-
-    combined_text = '\n'.join(pages_with_numbers)
-
+from pptx import Presentation
+from pptx.enum.shapes import MSO_SHAPE_TYPE
+import pytesseract
+from PIL import Image
+from inscriptis import get_text
+nltk.download('punkt') 
+def extract_text_from_ppt(pptx_file, input_html_file):
     # Process HTML
     if not os.path.exists(input_html_file):
         print(f'The file {input_html_file} does not exist.')
@@ -41,30 +19,80 @@ def process_pdf_and_html(input_pdf_file, input_html_file):
 
     with open(input_html_file, 'r', encoding="ISO-8859-1") as file:
         html_content = file.read()
+    text_content= get_text(html_content)
 
-    # Assuming you have a function get_text() to extract text from HTML
-    text_content = get_text(html_content)
+    def extract_table(table):
+        # Function to extract text from a PowerPoint table
+        data = []
+        for row in table.rows:
+            row_text = []
+            for cell in row.cells:
+                cell_text = ""
+                for paragraph in cell.text_frame.paragraphs:
+                    cell_text += " ".join(run.text for run in paragraph.runs)
+                row_text.append(cell_text)
+            data.append("\n".join(row_text))
+        return "\n".join(data)
 
-    return combined_text, text_content
+    def extract_text_from_image(image_path):
+        # Function to extract text from an image using Tesseract OCR
+        try:
+            image = Image.open(image_path)
+            extracted_text = pytesseract.image_to_string(image)
+            return extracted_text
+        except Exception as e:
+            print(f"Error while extracting text from image: {e}")
+            return ""
 
-def compare_pdf_with_html(pdf_text, html_text):
+    extracted_text = ""
+    prs = Presentation(pptx_file)
+    input_pptx_file = os.path.splitext(pptx_file)[0].strip()
+    output_folder = f'{input_pptx_file}_images'
+
+    for slide_number, slide in enumerate(prs.slides):
+        extracted_text += f"Slide {slide_number + 1}:\n"
+
+        for shape in slide.shapes:
+            if shape.has_table:
+                table_text = extract_table(shape.table)
+                extracted_text += table_text + '\n\n'
+            elif hasattr(shape, "text"):
+                extracted_text += shape.text + '\n\n'
+            elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                image_part = shape.image
+                if image_part:
+                    image_bytes = image_part.blob
+                    image_filename = os.path.join(output_folder, f'image_slide_{slide_number + 1}.jpg')
+                    with open(image_filename, 'wb') as f:
+                        f.write(image_bytes)
+                    extracted_image_text = extract_text_from_image(image_filename)
+                    extracted_text += extracted_image_text + '\n\n'
+
+    output_text_file = f'{input_pptx_file}_ppt_text.txt'
+    with open(output_text_file, 'w', encoding='utf-8') as text_file:
+        text_file.write(extracted_text)
+
+        
+    return extracted_text,text_content
+
+def compare_ppt_with_html(ppt_text, html_text):
     try:
-        pdf_words = set(nltk.word_tokenize(pdf_text))
+        ppt_words = set(nltk.word_tokenize(ppt_text))
         html_words = set(nltk.word_tokenize(html_text))
 
         # Finding the difference
-        difference_words = pdf_words - html_words
+        difference_words = ppt_words - html_words
 
         # Finding the line, position, page
         word_positions = {}
-        pdf_lines = pdf_text.splitlines()
+        ppt_lines = ppt_text.splitlines()
 
         page_number = 0
         line_number = 0
 
-        for line in pdf_lines:
-            if line.startswith("Page"):
-                match = re.match(r'Page (\d+)', line)
+        for line in ppt_lines:
+            if line.startswith("Slide"):
+                match = re.match(r'Slide (\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
@@ -83,7 +111,7 @@ def compare_pdf_with_html(pdf_text, html_text):
                         'LineContent': line
                     })
 
-        output = f"pdf_htmlcompare.txt"
+        output = f"ppt_htmlcompare.txt"
         with open(output, 'w', encoding='utf-8') as result_file:
             for word, positions in word_positions.items():
                 for data in positions:
@@ -96,7 +124,7 @@ def compare_pdf_with_html(pdf_text, html_text):
         logging.info(f"Words in PDF but not in HTML, along with positions, saved to {output}")
 
         # Comparison using Jaccard Similarity
-        jaccard_similarity = len(pdf_words.intersection(html_words)) / len(pdf_words.union(html_words))
+        jaccard_similarity = len(ppt_words.intersection(html_words)) / len(ppt_words.union(html_words))
         percentage_difference = (1 - jaccard_similarity) * 100
         logging.info(f"Jaccard Similarity Score: {jaccard_similarity:.2f}")
 
@@ -105,7 +133,7 @@ def compare_pdf_with_html(pdf_text, html_text):
         tokenizer = BertTokenizer.from_pretrained(model_name)
         model = BertModel.from_pretrained(model_name)
 
-        tokens1 = tokenizer(pdf_text, return_tensors='pt', padding=True, truncation=True)
+        tokens1 = tokenizer(ppt_text, return_tensors='pt', padding=True, truncation=True)
         tokens2 = tokenizer(html_text, return_tensors='pt', padding=True, truncation=True)
 
         with torch.no_grad():
@@ -122,8 +150,7 @@ def compare_pdf_with_html(pdf_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "jaccard_similarity": float(jaccard_similarity),
-            "pdf_text": pdf_text,
+            "ppt_text": ppt_text,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
@@ -135,5 +162,3 @@ def compare_pdf_with_html(pdf_text, html_text):
     
     except Exception as e:
         return {"error": str(e)}
-
-# ... (other functions if any)

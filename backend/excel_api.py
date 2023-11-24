@@ -9,6 +9,20 @@ from sklearn.metrics.pairwise import cosine_similarity
 from transformers import BertTokenizer, BertModel
 from tabulate import tabulate
 import textwrap
+#nltk.download('punkt') 
+
+from nltk import download
+
+# Set the data download path
+nltk.data.path.append("D:\comparison_tool\documentcomparisiontool")
+
+# Disable SSL verification
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Download 'punkt'
+download('punkt')
+
 
 def extract_text_from_excel(input_excel_file, input_html_file):
     with open(input_html_file, 'r', encoding="ISO-8859-1") as file:
