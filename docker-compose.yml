@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    image: ${COMPOSE_PROJECT_NAME}/backend:latest
+    restart: always
+    environment:
+      FLASK_APP: run.py
+      FLASK_ENV: development
+    env_file:
+      - ".env"
+    volumes:
+      - ./backend:/app
+    entrypoint: bash docker-entrypoint.sh
+    ports:
+      - ${BACKEND_PORT}:5000
+    networks:
+      - docker-network
+    container_name: ${COMPOSE_PROJECT_NAME}-backend
+
+networks:
+  docker-network:
+    name: "${COMPOSE_PROJECT_NAME}"
+    driver: bridge
+
