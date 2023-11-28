@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
-  showCompage = true;
+  showCompage = false;
   response:any;
   constructor(
     private http: HttpClient,
@@ -20,5 +20,14 @@ export class HomeComponent {
       console.log(res);
       this.response = res;
      });
+  }
+
+  formateResponse(val:any){
+    if(val){
+      return val.replace(/\n/g, '<br>')
+    } else {
+      return "";
+    }
+     
   }
 }
