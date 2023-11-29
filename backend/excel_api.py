@@ -13,8 +13,6 @@ import textwrap
 
 from nltk import download
 
-# Set the data download path
-nltk.data.path.append("D:\comparison_tool\documentcomparisiontool")
 
 # Disable SSL verification
 import ssl

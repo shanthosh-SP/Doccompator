@@ -14,17 +14,12 @@ from flask import jsonify  # Import jsonify for JSON response
 import nltk
 from nltk import download
 
-# Set the data download path
-nltk.data.path.append("D:\comparison_tool\documentcomparisiontool")
-
 # Disable SSL verification
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # Download 'punkt'
 download('punkt')
-
-
 
 def extract_text_with_layout(file_path):
     with open(file_path, 'r', encoding='utf-8') as text_file:
