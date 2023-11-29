@@ -1,6 +1,37 @@
 version: '3.8'
 
 services:
+  apache:
+    image: httpd:2.4.46
+    restart: always
+    ports:
+      - "${APACHE_PORT}:80"
+    volumes:
+      - "${CUSTOM_FRONTEND_PATH}:/usr/local/apache2/htdocs"
+    networks:
+      - docker-network
+    container_name: "${COMPOSE_PROJECT_NAME}-apache"
+
+  angular:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: ${COMPOSE_PROJECT_NAME}/frontend:latest
+    init: true
+    env_file:
+      - .env
+    environment:
+      - NG_CMD=${NG_CMD:-SERVE_DIST}
+      - HOST_USER_ID=${UID}
+      - HOST_GROUP_ID=${GID}
+    working_dir: "/frontend"
+    command:
+      - bash
+      - /frontend/docker-entrypoint.sh
+    volumes:
+      - ./frontend:/frontend
+    container_name: ${COMPOSE_PROJECT_NAME}_angular_build
+
   backend:
     build:
       context: backend
