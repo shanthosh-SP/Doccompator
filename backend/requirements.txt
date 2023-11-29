@@ -81,7 +81,7 @@ jsonschema-specifications
 langchain
 langcodes
 langsmith
-llama_cpp_python
+llama_cpp_python == 0.1.83
 looseversion
 lxml
 markdown-it-py

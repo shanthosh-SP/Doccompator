@@ -1,0 +1,73 @@
+<div class="toolbar" role="banner">
+  <!-- <img
+    width="40"
+    alt="Angular Logo"
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
+  /> -->
+  <a href="/"> <h4 class="mx-5">DiffDazzle</h4></a>
+    <div class="spacer"></div>
+
+    <h6 class="mx-5" *ngIf="response?.bert_cosine_similarity && showCompage">File Match Score : {{(response?.bert_cosine_similarity * 100).toFixed(2)}} % </h6>
+    <!-- <a aria-label="Angular on twitter" target="_blank" rel="noopener" href="https://twitter.com/angular" title="Twitter">
+     
+    </a> -->
+    <!-- <a aria-label="Angular on YouTube" target="_blank" rel="noopener" href="https://youtube.com/angular" title="YouTube">
+     
+    </a> -->
+</div>
+
+<div class="row mx-0"  style="height: 100vh;" *ngIf="showCompage">
+  <div class="col-2 change_list">
+  <h5>Changes List</h5>
+  <hr>
+  <div *ngFor="let data of changeList" style="cursor: pointer;" (click)="highlightText(data.line_content)">
+      <div><b>Line :</b> {{data.Line}}</div>
+      <div><b>Page :</b>  {{data.Page}}</div>
+      <div><b>Position :</b>  {{data.Position}}</div>
+      <div><b>Word :</b>  {{data.Word}}</div>
+      <div><b>Line Content :</b>  {{data.line_content}}</div>
+      <hr>
+  </div>
+    <!-- <div [innerHTML]="formateResponse(response?.comparison_output?.content)"></div> -->
+  </div>
+  <div class="col-10 row mx-0 px-0">
+    <div class="col-6 file_content_container">
+    <!-- File 1 -->
+    <div  [innerHTML]="formateResponse(response?.pdf_text)" ></div>
+    </div>
+    <div class="col-6 file_content_container">
+      <!-- File 2 -->
+      <div [innerHTML]="formateResponse(response?.html_text)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row mx-0" *ngIf="!showCompage">
+
+  <div class="col-6 mx-auto my-5">
+    <form>
+      <div class="form-group">
+        <label for="file1" class="mb-2">File 1</label>
+        <input type="file" class="form-control" id="file1" placeholder="">
+      </div>
+    
+      <div class="form-group mt-3">
+        <label for="file2" class="mb-2">File 2</label>
+        <input type="file" class="form-control" id="file2" placeholder="" accept=".html">
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-3" (click)="showCompage = true">Compare</button>
+    </form>
+  </div>
+</div>
+
+<footer class="px-4 py-2" style="position: fixed;bottom: 0px;background-color: #28104E;width: 100%;color: #fff;">
+ <div class="row" style="width: 100%;">
+  <div class="col-12 text-center">
+    © 2023 TVS Next. All Rights Reserved.
+  </div>
+  <!-- <div class="col-6">
+  </div> -->
+ </div>
+</footer>
+
