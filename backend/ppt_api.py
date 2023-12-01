@@ -150,7 +150,7 @@ def compare_ppt_with_html(ppt_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "ppt_text": ppt_text,
+            "pdf_text": ppt_text,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
