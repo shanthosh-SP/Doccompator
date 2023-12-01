@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 
@@ -21,19 +21,44 @@ export class HomeComponent {
   rawResponse:any;
   changeList:any = [];
   changeListFinalData:any = [];
+  selectedIndex:any;
+  showLoader = false;
+
+  file1: any;
+  file2: any;
   constructor(
     private http: HttpClient,
   ){
-    this.getData();
+  //  this.getData();
+    this.file1 = null;
+    this.file2 = null;
+  }
+
+  onFile1Selected(event: any) {
+    this.file1 = event.target.files[0];
+  }
+
+  onFile2Selected(event: any) {
+    this.file2 = event.target.files[0];
   }
 
   getData(){
-    this.http.get('assets/response.json').subscribe((res:any)=>{
+    this.showLoader = true;
+    const formData = new FormData();
+    formData.append('file1', this.file1);
+    formData.append('html_file', this.file2);
+
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'multipart/form-data',
+    // });
+
+    this.http.post('http://innovationhub.tvsnext.io:61077/process_and_compare_files',formData).subscribe((res:any)=>{
+    this.showLoader = false;
+    this.showCompage = true;
+    console.log(res);
       this.rawResponse = JSON.parse(JSON.stringify(res));
       console.log(res.comparison_output.content);
       this.changeList = this.splitChangeContent(res.comparison_output.content);
-    //  console.log(this.changeList);
-      console.log(this.changeList);
       this.response = res;
      });
   }
@@ -51,7 +76,6 @@ export class HomeComponent {
     let splitParentData = res.split("\n\n");
     if(splitParentData.length){
       splitParentData.forEach((element:any) => {
-      //  this.splitSubContent(element)
       if(this.splitSubContent(element)){
         this.changeListFinalData.push(this.splitSubContent(element));
       }
@@ -77,14 +101,8 @@ export class HomeComponent {
         }
        
        }
-       
-      //  if(objVal.length){
-      //   retunObj[objVal[0]] = objVal[1].toString();
-      //  }
-       //
+    
     })
-  //  console.log(data.replace(/['"]+/g, ''));
-  console.log(retunObj);
   return retunObj;
   }
 
@@ -105,10 +123,15 @@ export class HomeComponent {
       
       this.response.pdf_text = this.formateResponse(highlightedText);
       console.log(this.response.pdf_text);
-      this.scrollToElement();
+
+      setTimeout(() => {
+        this.scrollToElement();
+      }, 20);
+
+     
 
     } else {
-     console.log('hrer');
+     console.log('not there');
     }
   }
 
@@ -119,8 +142,6 @@ export class HomeComponent {
 
   scrollToElement(): void {
     const element = document.querySelector(".highlight");
-    
-    console.log(element);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
