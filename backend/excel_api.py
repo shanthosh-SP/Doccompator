@@ -165,7 +165,7 @@ def compare_excel_with_html(excel_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "Excel_text": excel_text,
+            "pdf_text": excel_text,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
