@@ -92,8 +92,9 @@ with open(output_html_file, 'r', encoding='utf-8') as html_file:
 # # Create a reference variable for Class SpaceTokenizer
 # tk = WordPunctTokenizer()
 # nltk.download('punkt')
-pdf_words = set(nltk.word_tokenize(pdf_text))
-html_words = set(nltk.word_tokenize(html_text))
+from nltk.tokenize import regexp_tokenize 
+pdf_words = set(regexp_tokenize(pdf_text,"[\w']+"))
+html_words = set(regexp_tokenize(html_text, "[\w']+"))
 
 #################FINDING DIFFERENCE##########################
 difference_words = pdf_words - html_words 
