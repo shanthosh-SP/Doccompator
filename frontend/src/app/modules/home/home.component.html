@@ -1,13 +1,15 @@
 <div class="toolbar" role="banner">
-  <!-- <img
-    width="40"
-    alt="Angular Logo"
-    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
-  /> -->
-  <a href="/"> <h4 class="mx-5">DiffDazzle</h4></a>
+  <img *ngIf="showCompage"
+    width="20px" class="ml-4"
+    src="/assets/left-chevron.png"
+    (click)="goBack()"
+  />
+  <a href="/" *ngIf="!showCompage"> <h4 class="mx-5">DiffDazzle</h4></a>
     <div class="spacer"></div>
 
-    <h6 class="mx-5" *ngIf="response?.bert_cosine_similarity && showCompage">File Match Score : {{(response?.bert_cosine_similarity * 100).toFixed(2)}} % </h6>
+    <button class="btn btn-primary mx-3" *ngIf="response?.bert_cosine_similarity && showCompage && !showFileMatchScore" (click)="showFileMatchScore = true">Check Score</button>
+
+    <h6 class="mx-5" *ngIf="response?.bert_cosine_similarity && showCompage && showFileMatchScore">File Match Score : {{(response?.bert_cosine_similarity * 100).toFixed(2)}} % </h6>
     <!-- <a aria-label="Angular on twitter" target="_blank" rel="noopener" href="https://twitter.com/angular" title="Twitter">
      
     </a> -->
@@ -48,14 +50,16 @@
 
   <div class="col-6 mx-auto my-5">
    
-      <div class="form-group">
+      <div class="form-group" style="position: relative;">
         <label for="file1" class="mb-2">File 1</label>
-        <input type="file" class="form-control" id="file1" placeholder="" (change)="onFile1Selected($event)">
+        <input type="file" class="form-control" id="file1" placeholder=""  accept=".pdf,.ppt,.pptx,.xls,.xlsx" (change)="onFile1Selected($event)">
+        <img [src]="fileIcon" class="field_icon" *ngIf="fileIcon" />
       </div>
     
-      <div class="form-group mt-3">
+      <div class="form-group mt-3" style="position: relative;">
         <label for="file2" class="mb-2">HTML File</label>
-        <input type="file" class="form-control" id="file2" placeholder=""(change)="onFile2Selected($event)"  accept=".html">
+        <input type="file" class="form-control" id="file2" placeholder=""(change)="onFile2Selected($event)"  accept=".html,.htm">
+        <img src="/assets/html.png" class="field_icon" />
       </div>
 
       <button class="btn btn-primary mt-3" (click)="getData()" [disabled]="file1 == null || file2 == null">Compare</button>

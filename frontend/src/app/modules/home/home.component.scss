@@ -8,6 +8,7 @@
 
 .form-control{
     border: 1px solid #28104E;
+    padding-right: 35px;
 }
 
 label
@@ -62,7 +63,8 @@ label
   }
 
   .toolbar img {
-    margin: 0 16px;
+    margin: 0 30px;
+    cursor: pointer;
   }
 
   .toolbar #twitter-logo {
@@ -324,4 +326,11 @@ label
   .selectedIndex{
     background-color: #ccc;
     padding-left: 5px;
+  }
+
+  .field_icon{
+    right: 6px;
+    position: absolute;
+    width: 25px;
+    bottom: 6px;
   }
