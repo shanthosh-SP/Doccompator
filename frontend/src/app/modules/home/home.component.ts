@@ -16,7 +16,7 @@ import { trigger, style, animate, transition } from '@angular/animations';
   ],
 })
 export class HomeComponent {
-  showCompage = true;
+  showCompage = false;
   response:any;
   rawResponse:any;
   changeList:any = [];
