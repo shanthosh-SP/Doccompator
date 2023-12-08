@@ -59,8 +59,9 @@ def process_pdf_and_html(input_pdf_file, input_html_file):
 
 def compare_pdf_with_html(pdf_text, html_text):
     try:
-        pdf_words = set(nltk.word_tokenize(pdf_text))
-        html_words = set(nltk.word_tokenize(html_text))
+        from nltk.tokenize import regexp_tokenize 
+        pdf_words = set(regexp_tokenize(pdf_text,"[\w']+"))
+        html_words = set(regexp_tokenize(html_text, "[\w']+"))
 
         # Finding the difference
         difference_words = pdf_words - html_words
