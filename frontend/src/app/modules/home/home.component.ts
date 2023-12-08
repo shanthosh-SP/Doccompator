@@ -23,6 +23,8 @@ export class HomeComponent {
   changeListFinalData:any = [];
   selectedIndex:any;
   showLoader = false;
+  fileIcon:any = '';
+  showFileMatchScore = false;
 
   file1: any;
   file2: any;
@@ -36,6 +38,13 @@ export class HomeComponent {
 
   onFile1Selected(event: any) {
     this.file1 = event.target.files[0];
+    if(this.file1.type == 'application/pdf'){
+      this.fileIcon = '/assets/pdf.png';
+    } else if(this.file1.type == 'application/vnd.ms-excel') {
+      this.fileIcon = '/assets/xls.png';
+    } else if(this.file1.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+      this.fileIcon = '/assets/ppt.png';
+    }
   }
 
   onFile2Selected(event: any) {
@@ -145,6 +154,12 @@ export class HomeComponent {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+
+  goBack(){
+   this.showCompage = false;
+   this.showFileMatchScore = false;
   }
 
 }
