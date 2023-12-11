@@ -75,7 +75,7 @@ def extract_text_from_excel(input_excel_file, input_html_file):
         with open(output_file, 'w') as text_file:
             # Iterate through all sheets and write data to the text file
             for sheet_name, sheet_data in sheets_data.items():
-                text_file.write(f"Sheet Name: {sheet_name}\n")
+                text_file.write(f"{sheet_name}\n")
                 sheet_data = sheet_data.fillna('')
                 text_file.write(sheet_data.to_string(index=False, header=True))
                 text_file.write("\n\n")
@@ -110,8 +110,8 @@ def compare_excel_with_html(excel_text, html_text):
         line_number = 0
 
         for line in excel_lines:
-            if line.startswith("sheet name"):
-                match = re.match(r'sheet name: sheet(\d+)', line)
+            if line.startswith("sheet"):
+                match = re.match(r'sheet(\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
