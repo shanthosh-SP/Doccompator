@@ -1,4 +1,4 @@
-import os
+Upimport os
 import pandas as pd
 import openpyxl
 import re
@@ -119,18 +119,29 @@ def compare_excel_with_html(excel_text, html_text):
                 line_number += 1
 
             line_words = list(re.findall(r'\b\w+\b', line))
-            for word in line_words:
-                if word in difference_words:
-                    if word not in word_positions:
-                        word_positions[word] = []
-                    word_positions[word].append({
-                        'Page': page_number,
-                        'Line': line_number,
-                        'Position': line_words.index(word),
-                        'LineContent': line
-                    })
+            for position, word in enumerate(line_words):
+                if len(word) > 1 and word.lower() in difference_words:
 
-        output = f"excel_htmlcompare.txt"
+                    if word in difference_words:
+                        if word not in word_positions:
+                            word_positions[word] = []
+                        word_positions[word].append({
+                            'Page': page_number,
+                            'Line': line_number,
+                            'Position': position,
+                            'LineContent': line
+                        })
+        for word, positions in word_positions.items():
+            unique_positions = []
+            seen_positions = set()
+        for position in positions:
+            position_tuple = (position['Page'], position['Line'], position['Position'])
+            if position_tuple not in seen_positions:
+                seen_positions.add(position_tuple)
+                unique_positions.append(position)
+        word_positions[word] = unique_positions
+        
+        output = f"excel_htmlcompare1.txt"
         with open(output, 'w', encoding='utf-8') as result_file:
             for word, positions in word_positions.items():
                 for data in positions:
