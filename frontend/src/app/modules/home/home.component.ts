@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -30,6 +31,7 @@ export class HomeComponent {
   file2: any;
   constructor(
     private http: HttpClient,
+    private sanitizer: DomSanitizer
   ){
   //  this.getData();
     this.file1 = null;
@@ -38,13 +40,22 @@ export class HomeComponent {
 
   onFile1Selected(event: any) {
     this.file1 = event.target.files[0];
-    if(this.file1.type == 'application/pdf'){
-      this.fileIcon = '/assets/pdf.png';
-    } else if(this.file1.type == 'application/vnd.ms-excel') {
-      this.fileIcon = '/assets/xls.png';
-    } else if(this.file1.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+
+    const fileName = this.file1.name.toLowerCase();
+    const isPpt = fileName.endsWith('.ppt') || fileName.endsWith('.pptx');
+    const isPdf = fileName.endsWith('.pdf');
+    const isExcel = fileName.endsWith('.xls') || fileName.endsWith('.xlsx');
+
+    if (isPpt) {
       this.fileIcon = '/assets/ppt.png';
+    } else if (isPdf) {
+      this.fileIcon = '/assets/pdf.png';
+    } else if (isExcel) {
+      this.fileIcon = '/assets/xls.png';
+    } else {
+      console.log('Selected file is not a supported type.');
     }
+  
   }
 
   onFile2Selected(event: any) {
@@ -64,9 +75,7 @@ export class HomeComponent {
     this.http.post('http://innovationhub.tvsnext.io:61077/process_and_compare_files',formData).subscribe((res:any)=>{
     this.showLoader = false;
     this.showCompage = true;
-    console.log(res);
       this.rawResponse = JSON.parse(JSON.stringify(res));
-      console.log(res.comparison_output.content);
       this.changeList = this.splitChangeContent(res.comparison_output.content);
       this.response = res;
      });
@@ -98,15 +107,14 @@ export class HomeComponent {
     let data = val.split("\n");
     let retunObj:any = {};
     data.forEach((ele:any) =>{
-       let objVal = ele.replace(/['"]+/g, '').split(":");
-       console.log(objVal[0]);
+       let objVal = ele.split(":");
        let key = objVal[0];
        let value = objVal[1];
        if(key && value){
         if(key=='Line Content'){
           retunObj.line_content = this.removeLeadingWhitespace(value);
         } else {
-          retunObj[key] = value;
+          retunObj[key] = this.removeLeadingWhitespace(value);
         }
        
        }
@@ -116,22 +124,32 @@ export class HomeComponent {
   }
 
 
-   highlightText(text:any) {
+   highlightText(data:any) {
+    let change = JSON.parse(JSON.stringify(data));
+
     // Get the input string and the target text
-   let rawContent = this.rawResponse.pdf_text;
-
+   let rawContent = JSON.parse(JSON.stringify(this.rawResponse.pdf_text));
     // Check if the input string exists in the target text
-    if (rawContent.includes(text)) {
+    if (rawContent.includes(change.line_content)) {
       // Replace the target text with the highlighted version
-      const highlightedText = rawContent.replace(
-        new RegExp(text, 'g'),
-        `<span class="highlight" id="highlightElement" [@scrollAnimation]>${text}</span>`
 
-         
-      );
+      const replacedContent = this.replaceWordByPosition(change.line_content,parseInt(change.Position),`<span class="highlight" id="highlightElement" [@scrollAnimation]>${change.Word}</span>`,change.Word);
+
+      // const replace_word = change.line_content.replace(new RegExp(change.Word, 'g'),
+      // `<span class="highlight" id="highlightElement" [@scrollAnimation]>${change.Word}</span>`);
+
+      const highlightedText = rawContent.replace(change.line_content,replacedContent);
+
+      
+      // const highlightedText = rawContent.replace(
+      //   new RegExp(change.line_content, 'g'),
+      //   `
+
+      // );
+    //  console.log(highlightedText);
       
       this.response.pdf_text = this.formateResponse(highlightedText);
-      console.log(this.response.pdf_text);
+    //  console.log(this.response.pdf_text);
 
       setTimeout(() => {
         this.scrollToElement();
@@ -143,6 +161,26 @@ export class HomeComponent {
      console.log('not there');
     }
   }
+
+
+  replaceWordByPosition(paragraph:any, position:any, replacement:any, word:any) {
+    // Split the paragraph into an array of words
+    const words = paragraph.split(/\s+/);
+    console.log(JSON.parse(JSON.stringify(words)));
+    // Ensure the position is within the valid range
+    if (position > words.length) {
+        console.error('Invalid position');
+        return paragraph;
+    }
+
+    // Replace the word at the specified position
+    words[position] = words[position].replace(word,replacement);
+
+    // Join the words back into a paragraph
+    const updatedParagraph = words.join(' ');
+
+    return updatedParagraph;
+}
 
 
   removeLeadingWhitespace(inputString:any) {
@@ -160,6 +198,15 @@ export class HomeComponent {
   goBack(){
    this.showCompage = false;
    this.showFileMatchScore = false;
+   this.fileIcon = '';
+   this.changeList = [];
+   this.rawResponse = null;
+   this.response = null;
+   location.reload();
+  }
+
+  safeHtml(val:any){
+    return this.sanitizer.bypassSecurityTrustHtml(val)
   }
 
 }
