@@ -77,8 +77,9 @@ def extract_text_from_ppt(pptx_file, input_html_file):
 
 def compare_ppt_with_html(ppt_text, html_text):
     try:
-        ppt_words = set(nltk.word_tokenize(ppt_text))
-        html_words = set(nltk.word_tokenize(html_text))
+        from nltk.tokenize import regexp_tokenize 
+        ppt_words = set(regexp_tokenize(ppt_text,"[\w']+"))
+        html_words = set(regexp_tokenize(html_text, "[\w']+"))
 
         # Finding the difference
         difference_words = ppt_words - html_words
@@ -89,7 +90,7 @@ def compare_ppt_with_html(ppt_text, html_text):
 
         page_number = 0
         line_number = 0
-
+    
         for line in ppt_lines:
             if line.startswith("Slide"):
                 match = re.match(r'Slide (\d+)', line)
@@ -99,30 +100,32 @@ def compare_ppt_with_html(ppt_text, html_text):
             else:
                 line_number += 1
 
-            line_words = list(re.findall(r'\b\w+\b', line))
+            line_words = list(regexp_tokenize(line, "[\w']+"))
             for word in line_words:
-                if word in difference_words:
-                    if word not in word_positions:
-                        word_positions[word] = []
-                    word_positions[word].append({
+                # Use case-insensitive comparison
+                word_lower = word.lower()
+                word_key = (word_lower, line_number, line_words.index(word))
+
+                # If the word is in the difference set and not in word_positions for the current key
+                if word_lower in difference_words and word_key not in word_positions:
+                    word_positions[word_key] = {
+                        'Word': word,
                         'Page': page_number,
                         'Line': line_number,
                         'Position': line_words.index(word),
                         'LineContent': line
-                    })
+                    }
 
         output = f"ppt_htmlcompare.txt"
         with open(output, 'w', encoding='utf-8') as result_file:
-            for word, positions in word_positions.items():
-                for data in positions:
-                    result_file.write(f"Word: {word}\n")
-                    result_file.write(f"Page: {data['Page']}\n")
-                    result_file.write(f"Line: {data['Line']}\n")
-                    result_file.write(f"Position: {data['Position']}\n")
-                    result_file.write(f"Line Content: {data['LineContent']}\n\n")
+            for key, data in word_positions.items():
+                result_file.write(f"Word: {data['Word']}\n")
+                result_file.write(f"Page: {data['Page']}\n")
+                result_file.write(f"Line: {data['Line']}\n")
+                result_file.write(f"Position: {data['Position']}\n")
+                result_file.write(f"Line Content: {data['LineContent']}\n\n")
 
-        logging.info(f"Words in PDF but not in HTML, along with positions, saved to {output}")
-
+        logging.info(f"Words in PPT but not in HTML, along with positions, saved to {output}")
         # Comparison using Jaccard Similarity
         jaccard_similarity = len(ppt_words.intersection(html_words)) / len(ppt_words.union(html_words))
         percentage_difference = (1 - jaccard_similarity) * 100

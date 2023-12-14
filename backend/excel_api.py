@@ -1,4 +1,4 @@
-import os
+Upimport os
 import pandas as pd
 import openpyxl
 import re
@@ -75,7 +75,7 @@ def extract_text_from_excel(input_excel_file, input_html_file):
         with open(output_file, 'w') as text_file:
             # Iterate through all sheets and write data to the text file
             for sheet_name, sheet_data in sheets_data.items():
-                text_file.write(f"Sheet Name: {sheet_name}\n")
+                text_file.write(f"{sheet_name}\n")
                 sheet_data = sheet_data.fillna('')
                 text_file.write(sheet_data.to_string(index=False, header=True))
                 text_file.write("\n\n")
@@ -110,8 +110,8 @@ def compare_excel_with_html(excel_text, html_text):
         line_number = 0
 
         for line in excel_lines:
-            if line.startswith("sheet name"):
-                match = re.match(r'sheet name: sheet(\d+)', line)
+            if line.startswith("sheet"):
+                match = re.match(r'sheet(\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
@@ -119,18 +119,29 @@ def compare_excel_with_html(excel_text, html_text):
                 line_number += 1
 
             line_words = list(re.findall(r'\b\w+\b', line))
-            for word in line_words:
-                if word in difference_words:
-                    if word not in word_positions:
-                        word_positions[word] = []
-                    word_positions[word].append({
-                        'Page': page_number,
-                        'Line': line_number,
-                        'Position': line_words.index(word),
-                        'LineContent': line
-                    })
+            for position, word in enumerate(line_words):
+                if len(word) > 1 and word.lower() in difference_words:
 
-        output = f"excel_htmlcompare.txt"
+                    if word in difference_words:
+                        if word not in word_positions:
+                            word_positions[word] = []
+                        word_positions[word].append({
+                            'Page': page_number,
+                            'Line': line_number,
+                            'Position': position,
+                            'LineContent': line
+                        })
+        for word, positions in word_positions.items():
+            unique_positions = []
+            seen_positions = set()
+        for position in positions:
+            position_tuple = (position['Page'], position['Line'], position['Position'])
+            if position_tuple not in seen_positions:
+                seen_positions.add(position_tuple)
+                unique_positions.append(position)
+        word_positions[word] = unique_positions
+        
+        output = f"excel_htmlcompare1.txt"
         with open(output, 'w', encoding='utf-8') as result_file:
             for word, positions in word_positions.items():
                 for data in positions:
