@@ -29,6 +29,8 @@ export class HomeComponent {
 
   file1: any;
   file2: any;
+  file1Name:any;
+  file2Name:any;
   constructor(
     private http: HttpClient,
     private sanitizer: DomSanitizer
@@ -42,6 +44,7 @@ export class HomeComponent {
     this.file1 = event.target.files[0];
 
     const fileName = this.file1.name.toLowerCase();
+    this.file1Name = this.file1.name;
     const isPpt = fileName.endsWith('.ppt') || fileName.endsWith('.pptx');
     const isPdf = fileName.endsWith('.pdf');
     const isExcel = fileName.endsWith('.xls') || fileName.endsWith('.xlsx');
@@ -60,6 +63,7 @@ export class HomeComponent {
 
   onFile2Selected(event: any) {
     this.file2 = event.target.files[0];
+    this.file2Name = this.file2.name;
   }
 
   getData(){
