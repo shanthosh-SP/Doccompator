@@ -19,11 +19,15 @@
 </div>
 
 <div class="row mx-0"  style="height: calc(100vh - 90px)" *ngIf="showCompage">
+  <div class="col-10 offset-2 row file_name_position">
+    <div class="col-6 text-center">{{file1Name}}</div>
+    <div class="col-6 text-center">{{file2Name}}</div>
+  </div>
   <div class="col-2 change_list" style="height: calc(100vh - 90px);
   overflow: auto;">
   <h5>Changes List</h5>
   <hr>
-  <div *ngFor="let data of changeList;let i index" [ngClass]="{'selectedIndex':selectedIndex == i}" style="cursor: pointer;" (click)="highlightText(data.line_content);selectedIndex = i">
+  <div *ngFor="let data of changeList;let i index" [ngClass]="{'selectedIndex':selectedIndex == i}" style="cursor: pointer;" (click)="highlightText(data);selectedIndex = i">
       <div><b>Line :</b> {{data.Line}}</div>
       <div><b>Page :</b>  {{data.Page}}</div>
       <div><b>Position :</b>  {{data.Position}}</div>
@@ -37,7 +41,7 @@
   overflow: auto;">
     <div class="col-6 file_content_container">
     <!-- File 1 -->
-    <div  [innerHTML]="formateResponse(response?.pdf_text)" ></div>
+    <div  [innerHTML]="formateResponse(response?.pdf_text)" id="pdfText" ></div>
     </div>
     <div class="col-6 file_content_container">
       <!-- File 2 -->
