@@ -101,8 +101,10 @@ def compare_excel_with_html(excel_text, html_text):
 
         # Finding the difference
         difference_words = excel_words - html_words
+        difference_words = {word for word in difference_words if not re.match(r'sheet', word)}
         for word in difference_words:
-            excel_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", ppt_text, flags=re.IGNORECASE)
+            excel_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", excel_text, flags=re.IGNORECASE)
+
 
         # Finding the line, position, page
         word_positions = {}

@@ -86,6 +86,7 @@ def compare_ppt_with_html(ppt_text, html_text):
 
         # Finding the difference
         difference_words = ppt_words - html_words
+        difference_words = {word for word in difference_words if not re.match(r'Slide', word)}
         for word in difference_words:
             ppt_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", ppt_text, flags=re.IGNORECASE)
 

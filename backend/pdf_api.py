@@ -67,6 +67,7 @@ def compare_pdf_with_html(pdf_text, html_text):
 
         # Finding the difference
         difference_words = pdf_words - html_words
+        difference_words = {word for word in difference_words if not re.match(r'Page', word)}
         for word in difference_words:
             pdf_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", pdf_text, flags=re.IGNORECASE)
 
