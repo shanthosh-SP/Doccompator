@@ -90,9 +90,7 @@ def compare_pdf_with_html(pdf_text, html_text):
             line_words = list(re.findall(r'\b\w+\b', line))
 
             for position, word in enumerate(line_words):
-                if line_words.startswith("Page"):
-                    continue 
-                    
+
                 if len(word) > 1 and word.lower() in difference_words:
 
                     if word in difference_words:
