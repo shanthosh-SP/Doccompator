@@ -48,16 +48,19 @@ def extract_text_from_ppt(pptx_file, input_html_file):
     prs = Presentation(pptx_file)
     input_pptx_file = os.path.splitext(pptx_file)[0].strip()
     output_folder = f'{input_pptx_file}_images'
-
+    def remove_superscripts(text):
+        # Define a regex pattern to capture common superscript characters and numbers
+        pattern = r'\[\d+\]'
+        return re.sub(pattern, '', text)
     for slide_number, slide in enumerate(prs.slides):
         extracted_text += f"Slide {slide_number + 1}:\n"
 
         for shape in slide.shapes:
             if shape.has_table:
                 table_text = extract_table(shape.table)
-                extracted_text += table_text + '\n\n'
+                extracted_text += remove_superscripts(table_text) + '\n\n'
             elif hasattr(shape, "text"):
-                extracted_text += shape.text + '\n\n'
+                extracted_text += remove_superscripts(shape.text) + '\n\n'
             elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
                 image_part = shape.image
                 if image_part:
@@ -83,6 +86,9 @@ def compare_ppt_with_html(ppt_text, html_text):
 
         # Finding the difference
         difference_words = ppt_words - html_words
+        for word in difference_words:
+            ppt_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", ppt_text, flags=re.IGNORECASE)
+
 
         # Finding the line, position, page
         word_positions = {}
