@@ -26,6 +26,8 @@ def extract_text_with_layout(file_path):
         text = text_file.read()
     return text
 
+
+
 def process_pdf_and_html(input_pdf_file, input_html_file):
     # Process PDF
     output_text_file = 'output.txt'
@@ -65,6 +67,9 @@ def compare_pdf_with_html(pdf_text, html_text):
 
         # Finding the difference
         difference_words = pdf_words - html_words
+        difference_words = {word for word in difference_words if not re.match(r'Page', word)}
+        for word in difference_words:
+            pdf_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", pdf_text, flags=re.IGNORECASE)
 
         # Finding the line, position, page
         word_positions = {}
@@ -83,7 +88,9 @@ def compare_pdf_with_html(pdf_text, html_text):
                 line_number += 1
 
             line_words = list(re.findall(r'\b\w+\b', line))
+
             for position, word in enumerate(line_words):
+
                 if len(word) > 1 and word.lower() in difference_words:
 
                     if word in difference_words:
