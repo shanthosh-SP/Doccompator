@@ -103,7 +103,7 @@ def compare_excel_with_html(excel_text, html_text):
         difference_words = excel_words - html_words
         difference_words = {word for word in difference_words if not re.match(r'sheet', word)}
         for word in difference_words:
-            excel_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", excel_text, flags=re.IGNORECASE)
+            excel_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span class='text-difference'>\1</span>", excel_text, flags=re.IGNORECASE)
 
 
         # Finding the line, position, page
@@ -181,7 +181,7 @@ def compare_excel_with_html(excel_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "pdf_text": excel_text,
+            "pdf_text": excel_text_span,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,

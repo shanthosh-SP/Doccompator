@@ -69,12 +69,12 @@ def compare_pdf_with_html(pdf_text, html_text):
         difference_words = pdf_words - html_words
         difference_words = {word for word in difference_words if not re.match(r'Page', word)}
         for word in difference_words:
-            pdf_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", pdf_text, flags=re.IGNORECASE)
+            pdf_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span class='text-difference'>\1</span>", pdf_text, flags=re.IGNORECASE)
 
         # Finding the line, position, page
         word_positions = {}
+        
         pdf_lines = pdf_text.splitlines()
-
         page_number = 0
         line_number = 0
 
@@ -88,6 +88,7 @@ def compare_pdf_with_html(pdf_text, html_text):
                 line_number += 1
 
             line_words = list(re.findall(r'\b\w+\b', line))
+            print(line)
 
             for position, word in enumerate(line_words):
 
@@ -151,7 +152,7 @@ def compare_pdf_with_html(pdf_text, html_text):
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
             "jaccard_similarity": float(jaccard_similarity),
-            "pdf_text": pdf_text,
+            "pdf_text": pdf_text_span,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
