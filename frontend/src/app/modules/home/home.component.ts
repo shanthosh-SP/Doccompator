@@ -76,7 +76,7 @@ export class HomeComponent {
     //   'Content-Type': 'multipart/form-data',
     // });
 
-    this.http.post('http://innovationhub.tvsnext.io:61077/process_and_compare_files',formData).subscribe((res:any)=>{
+    this.http.post('http://localhost:61077/process_and_compare_files',formData).subscribe((res:any)=>{
     this.showLoader = false;
     this.showCompage = true;
       this.rawResponse = JSON.parse(JSON.stringify(res));
@@ -134,7 +134,7 @@ export class HomeComponent {
     // Get the input string and the target text
    let rawContent = JSON.parse(JSON.stringify(this.rawResponse.pdf_text));
     // Check if the input string exists in the target text
-    if (rawContent.includes(change.line_content)) {
+    // if (!rawContent.includes(change.line_content)) {
       // Replace the target text with the highlighted version
 
       const replacedContent = this.replaceWordByPosition(change.line_content,parseInt(change.Position),`<span class="highlight" id="highlightElement" [@scrollAnimation]>${change.Word}</span>`,change.Word);
@@ -161,9 +161,9 @@ export class HomeComponent {
 
      
 
-    } else {
-     console.log('not there');
-    }
+    // } else {
+    //  console.log('not there');
+    // }
   }
 
 

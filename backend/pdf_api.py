@@ -67,11 +67,15 @@ def compare_pdf_with_html(pdf_text, html_text):
 
         # Finding the difference
         difference_words = pdf_words - html_words
-        difference_words = {word for word in difference_words if not re.match(r'Page', word)}
+        difference_words = {word for word in difference_words if word.lower() != 'page' and not word.startswith('Page') and len(word) > 3}
+        pdf_text_span = pdf_text
         for word in difference_words:
-            pdf_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span class='text-difference'>\1</span>", pdf_text, flags=re.IGNORECASE)
-
-        # Finding the line, position, page
+            
+            pdf_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'<span style="background-color: red;">\1</span>', pdf_text_span, flags=re.IGNORECASE)
+        
+        # Finding the line, position,page
+        
+        #print(pdf_text_span)
         word_positions = {}
         
         pdf_lines = pdf_text.splitlines()
@@ -88,21 +92,23 @@ def compare_pdf_with_html(pdf_text, html_text):
                 line_number += 1
 
             line_words = list(re.findall(r'\b\w+\b', line))
-            print(line)
+           
 
             for position, word in enumerate(line_words):
 
-                if len(word) > 1 and word.lower() in difference_words:
+                if len(word) <= 2:
+                    continue
+                
 
-                    if word in difference_words:
-                        if word not in word_positions:
-                            word_positions[word] = []
-                        word_positions[word].append({
-                            'Page': page_number,
-                            'Line': line_number,
-                            'Position': line_words.index(word),
-                            'LineContent': line
-                        })
+                if word in difference_words:
+                    if word not in word_positions:
+                        word_positions[word] = []
+                    word_positions[word].append({
+                        'Page': page_number,
+                        'Line': line_number,
+                        'Position': line_words.index(word),
+                        'LineContent': line
+                    })
         for word, positions in word_positions.items():
             unique_positions = []
             seen_positions = set()

@@ -9,19 +9,19 @@ RUN yum upgrade -y
 ## Install NVM and use Node version specified in .npmrc
 RUN	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
-COPY .nvmrc .
+COPY ./frontend/.nvmrc .
 
-RUN source ~/.bashrc && nvm install
+RUN source ~/.bashrc && nvm install --lts
 
 # Install Angular CLI - Do not send anonymous stats to google
-RUN source ~/.bashrc && echo 'N' | npm install -g @angular/cli@16.2.9
+RUN source ~/.bashrc && echo 'N' | npm install -g @angular/cli
 
 WORKDIR /usr/src
 
-COPY package.json .
+COPY ./frontend/package.json .
 
 # answer 'yes' to confirm installation
-RUN source ~/.bashrc && echo 'y' | npm install
+RUN source ~/.bashrc && echo 'y' | npm install --force
 
 WORKDIR '/frontend'
 

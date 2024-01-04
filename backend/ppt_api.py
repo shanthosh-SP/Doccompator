@@ -86,9 +86,11 @@ def compare_ppt_with_html(ppt_text, html_text):
 
         # Finding the difference
         difference_words = ppt_words - html_words
-        difference_words = {word for word in difference_words if not re.match(r'Slide', word)}
+        difference_words = {word for word in difference_words if word.lower() != 'unnamed' and not word.startswith('Slide') and len(word) > 3}
+        ppt_text_span=ppt_text
+  
         for word in difference_words:
-            ppt_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span class='text-difference'>\1</span>", ppt_text, flags=re.IGNORECASE)
+            ppt_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'<span class="text-difference">\1</span>', ppt_text_span, flags=re.IGNORECASE)
 
 
         # Finding the line, position, page

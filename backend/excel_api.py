@@ -101,10 +101,11 @@ def compare_excel_with_html(excel_text, html_text):
 
         # Finding the difference
         difference_words = excel_words - html_words
-        difference_words = {word for word in difference_words if not re.match(r'sheet', word)}
-        for word in difference_words:
-            excel_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span class='text-difference'>\1</span>", excel_text, flags=re.IGNORECASE)
-
+        difference_words = {word for word in difference_words if word.lower() != 'unnamed' and not word.startswith('Slide') and len(word) > 3}
+        excel_text_span=excel_text
+        for word in difference_words:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+            excel_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'<span style="background-color: red;">\1</span>', excel_text_span, flags=re.IGNORECASE)
+                                                                                                                        
 
         # Finding the line, position, page
         word_positions = {}
@@ -125,7 +126,7 @@ def compare_excel_with_html(excel_text, html_text):
             line_words = list(re.findall(r'\b\w+\b', line))
             for position, word in enumerate(line_words):
 
-                if len(word) > 1 and word.lower() in difference_words:
+                if len(word) > 2 and word.lower() in difference_words:
 
                     if word in difference_words:
                         if word not in word_positions:
