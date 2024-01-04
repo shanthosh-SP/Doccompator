@@ -90,7 +90,7 @@ def extract_text_from_excel(input_excel_file, input_html_file):
 
     excel_text = ""
     with open(output_excel_file, 'r', encoding="ISO-8859-1") as excel_file:
-        excel_text = excel_file.read().lower()
+        excel_text = excel_file.read()
 
     return {'excel_extraction_tabulated': table, 'excel_extraction_plain': excel_text, 'html': text_content}
 
@@ -115,8 +115,8 @@ def compare_excel_with_html(excel_text, html_text):
         line_number = 0
 
         for line in excel_lines:
-            if line.startswith("sheet"):
-                match = re.match(r'sheet(\d+)', line)
+            if line.startswith("Sheet"):
+                match = re.match(r'Sheet(\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
@@ -182,8 +182,9 @@ def compare_excel_with_html(excel_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "pdf_text": excel_text_span,
-            "html_text": html_text,
+            "jaccard_similarity": float(jaccard_similarity),
+            "pdf_text": excel_text_span.lower(),
+            "html_text": html_text.lower(),
             "comparison_output": {
                 "file_path": output,
                 "content": output_content

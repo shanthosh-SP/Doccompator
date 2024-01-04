@@ -158,8 +158,8 @@ def compare_pdf_with_html(pdf_text, html_text):
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
             "jaccard_similarity": float(jaccard_similarity),
-            "pdf_text": pdf_text_span,
-            "html_text": html_text,
+            "pdf_text": pdf_text_span.lower(),
+            "html_text": html_text.lower(),
             "comparison_output": {
                 "file_path": output,
                 "content": output_content
