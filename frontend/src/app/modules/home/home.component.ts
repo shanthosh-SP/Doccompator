@@ -94,6 +94,29 @@ export class HomeComponent {
      
   }
 
+ 
+  replaceAt(index:any, replacement:any,val:any,text:any) {
+    return val.substring(0, index) + replacement + val.substring(index + text.length);
+  }
+
+  formatMatchText(val: any, wordlist: any) {
+    const unique = [...new Set(wordlist.map((i: { Word: any; }) => i.Word))];
+
+    var newRawval = JSON.parse(JSON.stringify(val));
+    unique.forEach((element: any) => {
+      var listOfMatch = [...newRawval.matchAll(new RegExp(element, 'gi'))]
+      if (this.emptycheck(element)) {
+        listOfMatch.slice().reverse().forEach(obj => {
+          newRawval = this.replaceAt(obj.index, "<span style='background-color:red;'>" + element + "</span>", newRawval, element);
+        });
+      }
+    });
+    return newRawval ? newRawval.replace(/\n/g, '<br>') : "";
+  }
+
+  emptycheck(val: any) {
+    return (val !== "" ? val !== null ? val !== undefined ? val : "" : "" : "")
+  }
   splitChangeContent(res:any){
     let splitParentData = res.split("\n\n");
     if(splitParentData.length){
@@ -116,6 +139,7 @@ export class HomeComponent {
        let value = objVal[1];
        if(key && value){
         if(key=='Line Content'){
+          value=ele.trim().replace('Line Content:','');
           retunObj.line_content = this.removeLeadingWhitespace(value);
         } else {
           retunObj[key] = this.removeLeadingWhitespace(value);
@@ -169,8 +193,8 @@ export class HomeComponent {
 
   replaceWordByPosition(paragraph:any, position:any, replacement:any, word:any) {
     // Split the paragraph into an array of words
-    const words = paragraph.split(/\s+/);
-    console.log(JSON.parse(JSON.stringify(words)));
+    var reg =  /[.\s]+/;
+    const words =  paragraph.split(reg);
     // Ensure the position is within the valid range
     if (position > words.length) {
         console.error('Invalid position');
@@ -178,7 +202,7 @@ export class HomeComponent {
     }
 
     // Replace the word at the specified position
-    words[position] = words[position].replace(word,replacement);
+   words[position] = words[position].replace(word,replacement);
 
     // Join the words back into a paragraph
     const updatedParagraph = words.join(' ');

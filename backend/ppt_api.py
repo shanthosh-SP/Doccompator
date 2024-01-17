@@ -90,7 +90,7 @@ def compare_ppt_with_html(ppt_text, html_text):
         ppt_text_span=ppt_text
   
         for word in difference_words:
-            ppt_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'<span style="background-color: red;">\1</span>', ppt_text_span, flags=re.IGNORECASE)
+            ppt_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'\1', ppt_text_span, flags=re.IGNORECASE)
 
 
         # Finding the line, position, page
@@ -109,7 +109,7 @@ def compare_ppt_with_html(ppt_text, html_text):
             else:
                 line_number += 1
 
-            line_words = list(regexp_tokenize(line, "[\w']+"))
+            line_words = list(regexp_tokenize(line, "[\w,']+"))
             for word in line_words:
                 # Use case-insensitive comparison
                 word_lower = word.lower()
@@ -163,8 +163,8 @@ def compare_ppt_with_html(ppt_text, html_text):
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
             "jaccard_similarity": float(jaccard_similarity),
-            "pdf_text": ppt_text_span.lower(),
-            "html_text": html_text.lower(),
+            "pdf_text": ppt_text_span,
+            "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
                 "content": output_content
