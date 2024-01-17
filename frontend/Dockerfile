@@ -11,17 +11,17 @@ RUN	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | b
 
 COPY .nvmrc .
 
-RUN source ~/.bashrc && nvm install
+RUN source ~/.bashrc && nvm install --lts
 
 # Install Angular CLI - Do not send anonymous stats to google
-RUN source ~/.bashrc && echo 'N' | npm install -g @angular/cli@16.2.9
+RUN source ~/.bashrc && echo 'N' | npm install -g @angular/cli
 
 WORKDIR /usr/src
 
 COPY package.json .
 
 # answer 'yes' to confirm installation
-RUN source ~/.bashrc && echo 'y' | npm install
+RUN source ~/.bashrc && echo 'y' | npm install --force
 
 WORKDIR '/frontend'
 

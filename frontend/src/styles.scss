@@ -24,7 +24,7 @@ a{
 }
 
 .highlight {
-    color: red;
+    color: yellow;
     font-weight: bold;
   }
 
@@ -32,3 +32,8 @@ a{
     height: 100vh;
     overflow: hidden;
   }
+
+  .text-difference{
+    color: #fff;
+    background-color: red;
+  } 

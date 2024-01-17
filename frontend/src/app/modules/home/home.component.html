@@ -41,7 +41,7 @@
   overflow: auto;">
     <div class="col-6 file_content_container">
     <!-- File 1 -->
-    <div  [innerHTML]="formateResponse(response?.pdf_text)" id="pdfText" ></div>
+    <div  [innerHTML]="safeHtml(formatMatchText(response?.pdf_text,changeList))" id="pdfText" ></div>
     </div>
     <div class="col-6 file_content_container">
       <!-- File 2 -->
@@ -80,7 +80,7 @@ margin: auto;">
 <footer class="px-4 py-2" style="height: 30px;position: fixed;bottom: 0px;background-color: #28104E;width: 100%;color: #fff;">
  <div class="row" style="width: 100%;">
   <div class="col-12 text-center">
-    © 2023 TVS Next. All Rights Reserved.
+    © 2024 TVS Next. All Rights Reserved.
   </div>
   <!-- <div class="col-6">
   </div> -->

@@ -90,21 +90,24 @@ def extract_text_from_excel(input_excel_file, input_html_file):
 
     excel_text = ""
     with open(output_excel_file, 'r', encoding="ISO-8859-1") as excel_file:
-        excel_text = excel_file.read().lower()
+        excel_text = excel_file.read()
 
     return {'excel_extraction_tabulated': table, 'excel_extraction_plain': excel_text, 'html': text_content}
 
 def compare_excel_with_html(excel_text, html_text):
     try:
+        
+        from nltk.tokenize import regexp_tokenize 
         excel_words = set(nltk.word_tokenize(excel_text))
         html_words = set(nltk.word_tokenize(html_text))
 
         # Finding the difference
         difference_words = excel_words - html_words
-        difference_words = {word for word in difference_words if not re.match(r'sheet', word)}
-        for word in difference_words:
-            excel_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", excel_text, flags=re.IGNORECASE)
-
+        difference_words = {word for word in difference_words if word.lower() != 'unnamed' and not word.startswith('Slide') and len(word) > 3}
+        excel_text_span=excel_text
+        for word in difference_words:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+            excel_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'\1', excel_text_span, flags=re.IGNORECASE)
+                                                                                                                        
 
         # Finding the line, position, page
         word_positions = {}
@@ -114,18 +117,18 @@ def compare_excel_with_html(excel_text, html_text):
         line_number = 0
 
         for line in excel_lines:
-            if line.startswith("sheet"):
-                match = re.match(r'sheet(\d+)', line)
+            if line.startswith("Sheet"):
+                match = re.match(r'Sheet(\d+)', line)
                 if match:
                     page_number = int(match.group(1))
                 line_number = 0
             else:
                 line_number += 1
 
-            line_words = list(re.findall(r'\b\w+\b', line))
+            line_words = list(regexp_tokenize(line, "[\w,']+"))
             for position, word in enumerate(line_words):
 
-                if len(word) > 1 and word.lower() in difference_words:
+                if len(word) > 2 and word.lower() in difference_words:
 
                     if word in difference_words:
                         if word not in word_positions:
@@ -181,7 +184,8 @@ def compare_excel_with_html(excel_text, html_text):
 
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
-            "pdf_text": excel_text,
+            "jaccard_similarity": float(jaccard_similarity),
+            "pdf_text": excel_text_span,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,

@@ -61,20 +61,25 @@ def process_pdf_and_html(input_pdf_file, input_html_file):
 
 def compare_pdf_with_html(pdf_text, html_text):
     try:
+        # Tokenize the PDF and HTML texts
         from nltk.tokenize import regexp_tokenize 
-        pdf_words = set(regexp_tokenize(pdf_text,"[\w']+"))
+        pdf_words = set(regexp_tokenize(pdf_text, "[\w']+"))
         html_words = set(regexp_tokenize(html_text, "[\w']+"))
 
         # Finding the difference
         difference_words = pdf_words - html_words
-        difference_words = {word for word in difference_words if not re.match(r'Page', word)}
+        difference_words = {word for word in difference_words if word.lower() != 'page' and not word.startswith('Page') and len(word) > 3}
+
+        pdf_text_span = pdf_text
         for word in difference_words:
-            pdf_text = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r"<span style='background-color: red;'>\1</span>", pdf_text, flags=re.IGNORECASE)
+            pdf_text_span = re.sub(rf"(?<!>)\b({re.escape(word)})\b(?!<)", r'\1', pdf_text_span, flags=re.IGNORECASE)
 
-        # Finding the line, position, page
+        # Finding the line, position, and page
         word_positions = {}
-        pdf_lines = pdf_text.splitlines()
+        seen_positions = set()
+        # Initialize a counter for generating unique serial numbers
 
+        pdf_lines = pdf_text.splitlines()
         page_number = 0
         line_number = 0
 
@@ -87,31 +92,32 @@ def compare_pdf_with_html(pdf_text, html_text):
             else:
                 line_number += 1
 
-            line_words = list(re.findall(r'\b\w+\b', line))
-
+            line_words = list(regexp_tokenize(line, "[\w,']+"))
+            
             for position, word in enumerate(line_words):
+                if len(word) <= 2:
+                    continue
+                
+                if word in difference_words:
+                    if word not in word_positions:
+                        word_positions[word] = []
 
-                if len(word) > 1 and word.lower() in difference_words:
+                    position_tuple = (page_number, line_number, position)
+                    if position_tuple not in seen_positions:
+                        seen_positions.add(position_tuple)
 
-                    if word in difference_words:
-                        if word not in word_positions:
-                            word_positions[word] = []
                         word_positions[word].append({
+                           
                             'Page': page_number,
                             'Line': line_number,
-                            'Position': line_words.index(word),
+                            'Position': position,
                             'LineContent': line
                         })
-        for word, positions in word_positions.items():
-            unique_positions = []
-            seen_positions = set()
-        for position in positions:
-            position_tuple = (position['Page'], position['Line'], position['Position'])
-            if position_tuple not in seen_positions:
-                seen_positions.add(position_tuple)
-                unique_positions.append(position)
-        word_positions[word] = unique_positions
-        output = f"pdf_htmlcompare.txt"
+
+         # Increment the serial number counter
+
+        # Save the comparison output to a file
+        output = "pdf_htmlcompare.txt"
         with open(output, 'w', encoding='utf-8') as result_file:
             for word, positions in word_positions.items():
                 for data in positions:
@@ -122,6 +128,7 @@ def compare_pdf_with_html(pdf_text, html_text):
                     result_file.write(f"Line Content: {data['LineContent']}\n\n")
 
         logging.info(f"Words in PDF but not in HTML, along with positions, saved to {output}")
+
 
         # Comparison using Jaccard Similarity
         jaccard_similarity = len(pdf_words.intersection(html_words)) / len(pdf_words.union(html_words))
@@ -151,7 +158,7 @@ def compare_pdf_with_html(pdf_text, html_text):
         response_data = {
             "bert_cosine_similarity": float(similarity[0][0]),
             "jaccard_similarity": float(jaccard_similarity),
-            "pdf_text": pdf_text,
+            "pdf_text": pdf_text_span,
             "html_text": html_text,
             "comparison_output": {
                 "file_path": output,
