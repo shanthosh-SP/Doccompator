@@ -27,12 +27,12 @@
   overflow: auto;">
   <h5>Changes List</h5>
   <hr>
-  <div *ngFor="let data of changeList;let i index" [ngClass]="{'selectedIndex':selectedIndex == i}" style="cursor: pointer;" (click)="highlightText(data);selectedIndex = i">
+  <div *ngFor="let data of changeList;let i index" [ngClass]="{'selectedIndex':selectedIndex == i}" style="cursor: pointer;"  (click)="highlightText(data,changeList);selectedIndex = i">
       <div><b>Line :</b> {{data.Line}}</div>
       <div><b>Page :</b>  {{data.Page}}</div>
       <div><b>Position :</b>  {{data.Position}}</div>
       <div><b>Word :</b>  {{data.Word}}</div>
-      <div><b>Line Content :</b>  {{data.line_content}}</div>
+      <div><b>Line Content :</b> <div innerHTML="{{data.line_content}}"></div></div>
       <hr>
   </div>
     <!-- <div [innerHTML]="formateResponse(response?.comparison_output?.content)"></div> -->
