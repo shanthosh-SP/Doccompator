@@ -35,7 +35,7 @@ export class HomeComponent {
     private http: HttpClient,
     private sanitizer: DomSanitizer
   ){
-  //  this.getData();
+    //  this.getData();
     this.file1 = null;
     this.file2 = null;
   }
@@ -76,13 +76,13 @@ export class HomeComponent {
     //   'Content-Type': 'multipart/form-data',
     // });
 
-    this.http.post('http://localhost:61077/process_and_compare_files',formData).subscribe((res:any)=>{
-    this.showLoader = false;
-    this.showCompage = true;
+    this.http.post('http://innovationhub.tvsnext.io:61077/process_and_compare_files', formData).subscribe((res: any) => {
+      this.showLoader = false;
+      this.showCompage = true;
       this.rawResponse = JSON.parse(JSON.stringify(res));
       this.changeList = this.splitChangeContent(res.comparison_output.content);
       this.response = res;
-     });
+    });
   }
 
   formateResponse(val:any){
@@ -95,7 +95,7 @@ export class HomeComponent {
   }
 
  
-  replaceAt(index:any, replacement:any,val:any,text:any) {
+  replaceAt(index: any, replacement: any, val: any, text: any) {
     return val.substring(0, index) + replacement + val.substring(index + text.length);
   }
 
@@ -104,10 +104,12 @@ export class HomeComponent {
 
     var newRawval = JSON.parse(JSON.stringify(val));
     unique.forEach((element: any) => {
-      var listOfMatch = [...newRawval.matchAll(new RegExp(element, 'gi'))]
+      var listOfMatchlist = [...newRawval.matchAll(new RegExp('(\\w*' + element + '\\w*)', 'gi'))]
       if (this.emptycheck(element)) {
-        listOfMatch.slice().reverse().forEach(obj => {
-          newRawval = this.replaceAt(obj.index, "<span style='background-color:red;'>" + element + "</span>", newRawval, element);
+        listOfMatchlist.slice().reverse().forEach((obj, i) => {
+          if (obj[0] == element) {
+            newRawval = this.replaceAt(obj.index, "<span data-index='" + i + "' style='background-color:red;'>" + element + "</span>", newRawval, element);
+          }
         });
       }
     });
@@ -117,42 +119,41 @@ export class HomeComponent {
   emptycheck(val: any) {
     return (val !== "" ? val !== null ? val !== undefined ? val : "" : "" : "")
   }
-  splitChangeContent(res:any){
+  splitChangeContent(res: any) {
     let splitParentData = res.split("\n\n");
-    if(splitParentData.length){
-      splitParentData.forEach((element:any) => {
-      if(this.splitSubContent(element)){
-        this.changeListFinalData.push(this.splitSubContent(element));
-      }
-        
+    if (splitParentData.length) {
+      splitParentData.forEach((element: any) => {
+        if (this.emptycheck(element) != "") {
+          if (this.splitSubContent(element)) {
+            this.changeListFinalData.push(this.splitSubContent(element));
+          }
+        }
       });
     }
     return this.changeListFinalData;
   }
 
-  splitSubContent(val:any){
+  splitSubContent(val: any) {
     let data = val.split("\n");
-    let retunObj:any = {};
-    data.forEach((ele:any) =>{
-       let objVal = ele.split(":");
-       let key = objVal[0];
-       let value = objVal[1];
-       if(key && value){
-        if(key=='Line Content'){
-          value=ele.trim().replace('Line Content:','');
+    let retunObj: any = {};
+    data.forEach((ele: any) => {
+      let objVal = ele.split(":");
+      let key = objVal[0];
+      let value = objVal[1];
+      if (key && value) {
+        if (key == 'Line Content') {
+          value = ele.trim().replace('Line Content:', '');
           retunObj.line_content = this.removeLeadingWhitespace(value);
         } else {
           retunObj[key] = this.removeLeadingWhitespace(value);
         }
-       
-       }
-    
+      }
     })
-  return retunObj;
+    return retunObj;
   }
 
 
-   highlightText(data:any) {
+   highlightTextold(data:any) {
     let change = JSON.parse(JSON.stringify(data));
 
     // Get the input string and the target text
@@ -165,8 +166,8 @@ export class HomeComponent {
 
       // const replace_word = change.line_content.replace(new RegExp(change.Word, 'g'),
       // `<span class="highlight" id="highlightElement" [@scrollAnimation]>${change.Word}</span>`);
-
-      const highlightedText = rawContent.replace(change.line_content,replacedContent);
+      var filter=new RegExp('(\\w*' + change.line_content + '\\w*)', 'gi')
+      const highlightedText = rawContent.replace(filter,replacedContent);
 
       
       // const highlightedText = rawContent.replace(
@@ -190,25 +191,48 @@ export class HomeComponent {
     // }
   }
 
+  highlightText(data: any, changeList: any) {
+    let change = JSON.parse(JSON.stringify(data));
+    let rawContent = JSON.parse(JSON.stringify(this.rawResponse.pdf_text));
+    let wordSelectedList = changeList.filter((objdata: any) => { return objdata.Word === change.Word; });
+    let selectlistpostion = 0;
+    wordSelectedList.forEach((e: any, i: any) => {
+      if (e.Page === data.Page && e.Line === data.Line && e.Position === e.Position) {
+        selectlistpostion = i;
+      }
+    });
+    var listOfMatchlist = [...rawContent.matchAll(new RegExp('(\\w*' + change.Word + '\\w*)', 'g'))]
 
-  replaceWordByPosition(paragraph:any, position:any, replacement:any, word:any) {
+    listOfMatchlist = listOfMatchlist.filter((objdata: any) => { return objdata[0] === change.Word; });
+
+    if (this.emptycheck(change.Word)) {
+      listOfMatchlist.forEach((obj, i) => {
+        if (obj[0] == change.Word && selectlistpostion == i) {
+          rawContent = this.replaceAt(obj.index, `<span class="highlight" id="highlightElement" [@scrollAnimation]>${change.Word}</span>`, rawContent, change.Word);
+        }
+      });
+    }
+    this.response.pdf_text = this.formateResponse(rawContent);
+    setTimeout(() => { this.scrollToElement(); }, 20);
+  }
+
+  replaceWordByPosition(paragraph: any, position: any, replacement: any, word: any) {
     // Split the paragraph into an array of words
-    var reg =  /[.\s]+/;
-    const words =  paragraph.split(reg);
+    const words = paragraph.split(/[.\s]+/);
     // Ensure the position is within the valid range
     if (position > words.length) {
-        console.error('Invalid position');
-        return paragraph;
+      console.error('Invalid position');
+      return paragraph;
     }
 
     // Replace the word at the specified position
-   words[position] = words[position].replace(word,replacement);
+    words[position] = words[position].replace(word, replacement);
 
     // Join the words back into a paragraph
     const updatedParagraph = words.join(' ');
 
     return updatedParagraph;
-}
+  }
 
 
   removeLeadingWhitespace(inputString:any) {
