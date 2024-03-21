@@ -2,7 +2,7 @@
 import os
 from flask import Flask, request, jsonify
 #from docx_api import extract_text_from_docx, compare_docx_with_html
-from pdf_api import process_pdf_and_html, compare_pdf_with_html
+from pdf_api import process_pdf_and_excel, compare_pdf_with_html
 from ppt_api import extract_text_from_ppt, compare_ppt_with_html  # Import new functions
 from excel_api import process_files_and_return_results 
 app = Flask(__name__)
@@ -18,17 +18,19 @@ def process_and_compare_files():
         file1_extension = os.path.splitext(file1_filename)[1].lower()
         html_extension = os.path.splitext(html_filename)[1].lower()
 
-        if file1_extension == '.pdf' and html_extension == '.html':
+        if file1_extension == '.pdf' and html_extension == '.xlsx':
             # Process PDF and HTML files
             pdf_file_path = 'temp_pdf.pdf'
-            html_file_path = 'temp_html.html'
+            excel_file_path1 = 'temp_htl.xlsx'
             file1.save(pdf_file_path)
-            html_file.save(html_file_path)
+            html_file.save(excel_file_path1)
+            print("#############")
 
-            pdf_text, html_text = process_pdf_and_html(pdf_file_path, html_file_path)
+            pdf_text, excel_text = process_pdf_and_excel(pdf_file_path, excel_file_path1)
+            print("########333333333333#####")
 
             # Compare PDF with HTML
-            pdf_html_comparison_result = compare_pdf_with_html(pdf_text, html_text)
+            pdf_html_comparison_result = compare_pdf_with_html(pdf_text, excel_text)
 
             return jsonify(pdf_html_comparison_result)
         elif file1_extension == '.xlsx' and html_extension == '.html':

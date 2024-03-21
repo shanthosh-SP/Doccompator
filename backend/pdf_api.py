@@ -13,6 +13,28 @@ from sklearn.metrics.pairwise import cosine_similarity
 from flask import jsonify  # Import jsonify for JSON response
 import nltk
 from nltk import download
+import os
+import pandas as pd
+import openpyxl
+import re
+import nltk
+import torch
+from inscriptis import get_text
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import BertTokenizer, BertModel
+from tabulate import tabulate
+import textwrap
+#nltk.download('punkt') 
+
+from nltk import download
+
+
+# Disable SSL verification
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Download 'punkt'
+download('punkt')
 
 # Disable SSL verification
 import ssl
@@ -25,8 +47,6 @@ def extract_text_with_layout(file_path):
     with open(file_path, 'r', encoding='utf-8') as text_file:
         text = text_file.read()
     return text
-
-
 
 def process_pdf_and_html(input_pdf_file, input_html_file):
     # Process PDF
@@ -58,6 +78,103 @@ def process_pdf_and_html(input_pdf_file, input_html_file):
     text_content = get_text(html_content)
 
     return combined_text, text_content
+
+
+def process_pdf_and_excel(input_pdf_file, input_excel_file):
+    # Process PDF
+    output_text_file = 'output.txt'
+    subprocess.run(['pdftotext', '-layout', input_pdf_file, output_text_file])
+
+    parsed_pdf = parser.from_file(input_pdf_file)
+    num_pages = int(parsed_pdf['metadata'].get('xmpTPg:NPages', 0))
+
+    extracted_text = extract_text_with_layout(output_text_file)
+    pages = extracted_text.split('\x0c')
+    pages_with_numbers = []
+
+    for num_pages, page_text in enumerate(pages, 1):
+        if page_text.strip():
+            pages_with_numbers.append(f"Page {num_pages}\n{page_text}")
+
+    combined_text = '\n'.join(pages_with_numbers)
+
+    # # Process HTML
+    # if not os.path.exists(input_html_file):
+    #     print(f'The file {input_html_file} does not exist.')
+    #     exit()
+
+    # with open(input_html_file, 'r', encoding="ISO-8859-1") as file:
+    #     html_content = file.read()
+
+    # # Assuming you have a function get_text() to extract text from HTML
+    # text_content = get_text(html_content)
+        # Load the Excel file
+    excel_file = input_excel_file
+    workbook = openpyxl.load_workbook(excel_file, data_only=True)
+    sheet = workbook.active
+
+    # Define a maximum width for text wrapping
+    max_width = 50  # Adjust as needed
+
+    # Initialize a list to store the extracted data
+    data = []
+
+    # Extract column headers from the first row
+    headers = []
+    for cell in next(sheet.iter_rows(min_row=1, max_row=1)):
+        cell_text = cell.value if cell.value else ''
+        wrapped_text = textwrap.fill(str(cell_text), width=max_width)
+        headers.append(wrapped_text)
+
+    # Append the headers to the data list
+    data.append(headers)
+
+    # Iterate through the rows and columns in the Excel sheet
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
+        row_data = []
+        for cell in row:
+            cell_text = cell.value if cell.value else ''
+            wrapped_text = textwrap.fill(str(cell_text), width=max_width)
+            row_data.append(wrapped_text)
+        data.append(row_data)
+
+    # Combine the headers and data and format them with tabulate
+    table = tabulate(data, tablefmt="grid", headers="firstrow")
+
+    # Read all sheets from the Excel file into a dictionary of DataFrames
+    # Create an empty DataFrame to store the data from all sheets
+    all_sheets_data = pd.DataFrame()
+
+    # Read all sheets from the Excel file into a dictionary of DataFrames
+    xls = pd.ExcelFile(input_excel_file)
+    sheets_data = {sheet_name: xls.parse(sheet_name) for sheet_name in xls.sheet_names}
+
+    def save_text_to_file(sheets_data, output_file):
+        # Create or open the text file for writing
+        with open(output_file, 'w') as text_file:
+            # Iterate through all sheets and write data to the text file
+            for sheet_name, sheet_data in sheets_data.items():
+                text_file.write(f"{sheet_name}\n")
+                sheet_data = sheet_data.fillna('')
+                text_file.write(sheet_data.to_string(index=False, header=True))
+                text_file.write("\n\n")
+
+    input_excel_file = os.path.splitext(input_excel_file)[0].strip()
+    output_excel_file = f"{input_excel_file}_extracted.txt"
+
+    if sheets_data:
+        save_text_to_file(sheets_data, output_excel_file)
+    else:
+        print("Error: The number of extracted pages does not match the Excel metadata.")
+
+    excel_text = ""
+    with open(output_excel_file, 'r', encoding="ISO-8859-1") as excel_file:
+        excel_text = excel_file.read()
+    print("22222222222222222222222",combined_text)
+    print("22222222222222222222222",excel_text)
+
+    return combined_text,  excel_text
+
 
 def compare_pdf_with_html(pdf_text, html_text):
     try:
@@ -170,5 +287,7 @@ def compare_pdf_with_html(pdf_text, html_text):
     
     except Exception as e:
         return {"error": str(e)}
+
+
 
 # ... (other functions if any)

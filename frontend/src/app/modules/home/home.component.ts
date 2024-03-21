@@ -76,7 +76,7 @@ export class HomeComponent {
     //   'Content-Type': 'multipart/form-data',
     // });
 
-    this.http.post('http://innovationhub.tvsnext.io:61077/process_and_compare_files', formData).subscribe((res: any) => {
+    this.http.post('http://localhost:61077/process_and_compare_files', formData).subscribe((res: any) => {
       this.showLoader = false;
       this.showCompage = true;
       this.rawResponse = JSON.parse(JSON.stringify(res));
