@@ -1,0 +1,186 @@
+Word: intentionally
+Page: 6
+Line: 1
+Position: 2
+Line Content: (This page intentionally left blank.)
+
+Word: intentionally
+Page: 35
+Line: 1
+Position: 2
+Line Content: (This page intentionally left blank.)
+
+Word: intentionally
+Page: 36
+Line: 1
+Position: 2
+Line Content: (This page intentionally left blank.)
+
+Word: left
+Page: 6
+Line: 1
+Position: 3
+Line Content: (This page intentionally left blank.)
+
+Word: left
+Page: 35
+Line: 1
+Position: 3
+Line Content: (This page intentionally left blank.)
+
+Word: left
+Page: 36
+Line: 1
+Position: 3
+Line Content: (This page intentionally left blank.)
+
+Word: blank
+Page: 6
+Line: 1
+Position: 4
+Line Content: (This page intentionally left blank.)
+
+Word: blank
+Page: 35
+Line: 1
+Position: 4
+Line Content: (This page intentionally left blank.)
+
+Word: blank
+Page: 36
+Line: 1
+Position: 4
+Line Content: (This page intentionally left blank.)
+
+Word: tech
+Page: 7
+Line: 98
+Position: 0
+Line Content:                   tech ation
+
+Word: ation
+Page: 7
+Line: 98
+Position: 1
+Line Content:                   tech ation
+
+Word: disc
+Page: 7
+Line: 104
+Position: 0
+Line Content:                                   disc sumer
+
+Word: sumer
+Page: 7
+Line: 104
+Position: 1
+Line Content:                                   disc sumer
+
+Word: nary
+Page: 7
+Line: 105
+Position: 0
+Line Content:                                             nary
+
+Word: ples
+Page: 7
+Line: 111
+Position: 0
+Line Content:                                                           ples
+
+Word: ties
+Page: 7
+Line: 118
+Position: 0
+Line Content:                                                                                ties
+
+Word: serv
+Page: 7
+Line: 130
+Position: 0
+Line Content:                                                                                                                                      serv on
+
+Word: ices
+Page: 7
+Line: 131
+Position: 0
+Line Content:                                                                                                                                          ices
+
+Word: ents
+Page: 7
+Line: 133
+Position: 0
+Line Content:                                                                                                                                          ents
+
+Word: stria
+Page: 7
+Line: 135
+Position: 0
+Line Content:        stria
+
+Word: ncia
+Page: 7
+Line: 140
+Position: 0
+Line Content:                                          ncia
+
+Word: eria
+Page: 7
+Line: 145
+Position: 0
+Line Content:                                                                                           eria
+
+Word: nolo
+Page: 7
+Line: 146
+Position: 0
+Line Content:                        nolo
+
+Word: icat
+Page: 7
+Line: 152
+Position: 0
+Line Content:                                                                                                                                       icat
+
+Word: Utili
+Page: 7
+Line: 159
+Position: 0
+Line Content:                                                                           Utili
+
+Word: retio
+Page: 7
+Line: 171
+Position: 0
+Line Content:                                       retio
+
+Word: Fina
+Page: 7
+Line: 178
+Position: 0
+Line Content:                                      Fina
+
+Word: Indu
+Page: 7
+Line: 179
+Position: 0
+Line Content:     Indu
+
+Word: Info
+Page: 7
+Line: 191
+Position: 0
+Line Content:                  Info
+
+Word: Charge
+Page: 8
+Line: 37
+Position: 0
+Line Content:              Charge 2     Value      Value      Ratio    Period3              Total Return   Value      Value      Ratio    Period3
+
+Word: Receipts
+Page: 14
+Line: 8
+Position: 3
+Line Content: ADR — American Depositary Receipts
+

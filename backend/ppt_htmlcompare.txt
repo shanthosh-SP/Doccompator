@@ -1,0 +1,48 @@
+Word: approved
+Page: 1
+Line: 5
+Position: 3
+Line Content: The national government approved a Rs 100 million fund to support in search and rescue operations. The fund was divided into Rs 50 million allocated to West Rukum and Jajarkot districts. It also said it would provide free medical treatment to earthquake victims and provide Rs200,000 each to families of those killed. 
+
+Word: personnel
+Page: 1
+Line: 6
+Position: 3
+Line Content: About 4,000 personnel from the Nepalese Army, Police and Armed Police Force participated in these missions. The government of Bagmati Province also pledged Rs 15 million to support the affected population in Jajarkot. The Nepali Congress party also pitched Rs 5 million in financial aid for the national government.Buddha Air granted Rs 1,000,000 for earthquake victims.
+
+Word: from
+Page: 1
+Line: 6
+Position: 4
+Line Content: About 4,000 personnel from the Nepalese Army, Police and Armed Police Force participated in these missions. The government of Bagmati Province also pledged Rs 15 million to support the affected population in Jajarkot. The Nepali Congress party also pitched Rs 5 million in financial aid for the national government.Buddha Air granted Rs 1,000,000 for earthquake victims.
+
+Word: began
+Page: 1
+Line: 11
+Position: 2
+Line Content: the opposition began to coalesce around the National Unity Government, which launched an offensive against the junta. llages and towns, the junta's attacks drove out tens of thousands of people. 
+
+Word: coalesce
+Page: 1
+Line: 11
+Position: 4
+Line Content: the opposition began to coalesce around the National Unity Government, which launched an offensive against the junta. llages and towns, the junta's attacks drove out tens of thousands of people. 
+
+Word: around
+Page: 1
+Line: 11
+Position: 5
+Line Content: the opposition began to coalesce around the National Unity Government, which launched an offensive against the junta. llages and towns, the junta's attacks drove out tens of thousands of people. 
+
+Word: ndependent
+Page: 2
+Line: 3
+Position: 0
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining under Tatmadaw control, though these include all major population centres.
+
+Word: observers
+Page: 2
+Line: 3
+Position: 1
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining under Tatmadaw control, though these include all major population centres.
+

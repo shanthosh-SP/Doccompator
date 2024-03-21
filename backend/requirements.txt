@@ -1,0 +1,17 @@
+Flask
+pandas
+tika
+python-docx
+tabulate
+openpyxl
+python-pptx
+Pillow
+pytesseract
+inscriptis
+beautifulsoup4
+nltk
+torch
+scikit-learn
+transformers
+docx2pdf
+python-dotenv

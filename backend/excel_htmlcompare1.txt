@@ -1,0 +1,120 @@
+Word: text
+Page: 2
+Line: 1
+Position: 1
+Line Content:                                                                                                                                                                           Section text ppts
+
+Word: ppts
+Page: 2
+Line: 1
+Position: 2
+Line Content:                                                                                                                                                                           Section text ppts
+
+Word: second
+Page: 2
+Line: 2
+Position: 1
+Line Content:                                                                                                                                                                            The second pages
+
+Word: pages
+Page: 2
+Line: 2
+Position: 2
+Line Content:                                                                                                                                                                            The second pages
+
+Word: ndependent
+Page: 2
+Line: 3
+Position: 0
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: observers
+Page: 2
+Line: 3
+Position: 1
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: note
+Page: 2
+Line: 3
+Position: 2
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: real
+Page: 2
+Line: 3
+Position: 4
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: number
+Page: 2
+Line: 3
+Position: 5
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: likely
+Page: 2
+Line: 3
+Position: 7
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: higher
+Page: 2
+Line: 3
+Position: 9
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: with
+Page: 2
+Line: 3
+Position: 10
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: townships
+Page: 2
+Line: 3
+Position: 18
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: remaining
+Page: 2
+Line: 3
+Position: 19
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: control
+Page: 2
+Line: 3
+Position: 22
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: these
+Page: 2
+Line: 3
+Position: 24
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: include
+Page: 2
+Line: 3
+Position: 25
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: major
+Page: 2
+Line: 3
+Position: 27
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: population
+Page: 2
+Line: 3
+Position: 28
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+
+Word: centres
+Page: 2
+Line: 3
+Position: 29
+Line Content: ndependent observers note the real number is likely far higher, with as few as 72 out of 330 townships remaining underÂ TatmadawÂ control, though these include all major population centres.
+

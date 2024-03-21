@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+
+
+.form-control{
+    border: 1px solid #28104E;
+}
+
+label
+{
+    color: #28104E;
+}
+
+.btn-primary,.btn:disabled, .btn:hover{
+    background-color:#28104E;
+    border:1px solid #eceff1;
+    color:#eceff1
+}
+
+a{
+    color: unset !important;
+}
+
+.highlight {
+    color: red;
+    font-weight: bold;
+  }
+
+  body{
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .text-difference{
+    color: #fff;
+    background-color: red;
+  } 
